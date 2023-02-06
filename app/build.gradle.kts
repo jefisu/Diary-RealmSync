@@ -4,12 +4,13 @@ plugins {
     id("com.android.application")
     kotlin("android")
     id("kotlin-kapt")
-    id("io.realm.kotlin") version "1.4.0"
+    id("kotlin-parcelize")
+    id("io.realm.kotlin") version "1.6.0"
     id("dagger.hilt.android.plugin")
     id("org.jlleitschuh.gradle.ktlint") version "11.1.0"
     id("com.google.devtools.ksp") version "1.7.20-1.0.8"
-    id("com.google.secrets_gradle_plugin") version "0.4"
-    //    id("com.google.gms.google-services") version "4.3.15"
+    id("com.google.android.libraries.mapsplatform.secrets-gradle-plugin")
+    id("com.google.gms.google-services")
 }
 
 kotlin {
@@ -125,12 +126,8 @@ dependencies {
     implementation("androidx.core:core-splashscreen:1.0.0")
 
     // Mongo DB Realm
-    implementation("io.realm.kotlin:library-sync:1.4.0")
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.0-native-mt") {
-        version {
-            strictly("1.6.0-native-mt")
-        }
-    }
+    implementation("io.realm.kotlin:library-sync:1.6.0")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4")
 
     // Coil
     implementation("io.coil-kt:coil-compose:2.2.2")

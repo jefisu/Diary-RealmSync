@@ -10,4 +10,18 @@
     <string name="empty_diary">Empty Diary</string>
     <string name="write_something">Write something</string>
     <string name="failed_to_connect_with_your_google_account">Failed to connect with your google account</string>
+    <string name="it_was_not_possible_to_load_the_data">It was not possible to load the data</string>
+    <string name="user_not_authenticated">User not authenticated</string>
+    <string name="delete">Delete</string>
+    <string name="are_you_sure_you_want_to_permanently_delete_this_note_s">Are you sure you want to permanently delete this diary note?</string>
+    <string name="save">Save</string>
+    <string name="tell_me_about_it">Tell me about it</string>
+    <string name="title">Title</string>
+    <string name="it_was_not_possible_to_insert_try_again_later">It was not possible to %s. Try again later.</string>
+    <string name="fields_can_t_be_empty">Fields can\'t be empty.</string>
+    <string name="images_not_uploaded_yet_wait_a_little_bit_or_try_uploading_again">Images not uploaded yet. Wait a little bit, or try uploading again.</string>
+    <string name="delete_all_diaries">Delete All Diaries</string>
+    <string name="are_you_sure_you_want_to_permanently_delete_all_your_diaries">Are you sure you want to permanently delete all your diaries?</string>
+    <string name="no_matching_diaries">No matching diaries</string>
+    <string name="try_selecting_another_date">Try selecting another date</string>
 </resources>
