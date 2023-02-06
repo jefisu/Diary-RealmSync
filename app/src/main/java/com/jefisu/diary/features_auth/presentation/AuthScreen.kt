@@ -1,18 +1,12 @@
 package com.jefisu.diary.features_auth.presentation
 
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.*
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -24,13 +18,16 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.jefisu.diary.R
+import com.jefisu.diary.core.util.UiEvent
 import com.jefisu.diary.features_auth.presentation.components.GoogleButton
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootNavGraph
+import com.ramcosta.composedestinations.navigation.navigate
 import com.stevdzasan.messagebar.ContentWithMessageBar
 import com.stevdzasan.messagebar.rememberMessageBarState
 import com.stevdzasan.onetap.OneTapSignInWithGoogle
 import com.stevdzasan.onetap.rememberOneTapSignInState
+import kotlinx.coroutines.flow.collect
 
 @ExperimentalMaterial3Api
 @RootNavGraph(start = true)
@@ -45,21 +42,29 @@ fun AuthScreen(
     val oneTapState = rememberOneTapSignInState()
     val context = LocalContext.current
 
+    LaunchedEffect(key1 = viewModel.uiEvent) {
+        viewModel.uiEvent.collect { event ->
+            when (event) {
+                is UiEvent.Navigate -> {
+                    navController.apply {
+                        backQueue.clear()
+                        navigate(event.direction!!)
+                    }
+                }
+                is UiEvent.ShowError -> {
+                    messageBarState.addError(
+                        Exception(event.uiText?.asString(context))
+                    )
+                }
+            }
+        }
+    }
+
     OneTapSignInWithGoogle(
         state = oneTapState,
         clientId = viewModel.clientId,
         onTokenIdReceived = { tokenId ->
-            viewModel.signInWithMongoAtlas(
-                tokenId = tokenId,
-                onResult = { error ->
-                    error?.let {
-                        messageBarState.addError(
-                            Exception(it.asString(context))
-                        )
-                        return@signInWithMongoAtlas
-                    }
-                }
-            )
+            viewModel.signInWithMongoAtlas(tokenId = tokenId)
         },
         onDialogDismissed = { message ->
             messageBarState.addError(Exception(message))
