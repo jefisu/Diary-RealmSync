@@ -11,13 +11,22 @@ import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.core.view.WindowCompat
+import com.jefisu.diary.destinations.AuthScreenDestination
+import com.jefisu.diary.destinations.DiaryScreenDestination
+import com.jefisu.diary.destinations.DirectionDestination
 import com.jefisu.diary.ui.theme.DiaryTheme
 import com.ramcosta.composedestinations.DestinationsNavHost
 import dagger.hilt.android.AndroidEntryPoint
+import io.realm.kotlin.mongodb.App
+import javax.inject.Inject
 
 @OptIn(ExperimentalMaterial3Api::class)
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
+
+    @Inject
+    lateinit var appRealm: App
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         installSplashScreen()
@@ -27,6 +36,7 @@ class MainActivity : ComponentActivity() {
                 Surface(modifier = Modifier.fillMaxSize()) {
                     DestinationsNavHost(
                         navGraph = NavGraphs.root,
+                        startRoute = getStartDestination(),
                         modifier = Modifier
                             .statusBarsPadding()
                             .navigationBarsPadding()
@@ -34,5 +44,12 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
+    }
+
+    private fun getStartDestination(): DirectionDestination {
+        val user = appRealm.currentUser
+        return if (user != null && user.loggedIn) {
+            DiaryScreenDestination
+        } else AuthScreenDestination
     }
 }
