@@ -1,0 +1,13 @@
+<resources>
+    <string name="app_name">Diary</string>
+    <string name="sign_in_with_google">Sign in with Google</string>
+    <string name="please_wait">Please wait...</string>
+    <string name="auth_title">Welcome back</string>
+    <string name="auth_subtitle">Please sign in to continue.</string>
+    <string name="unknown_error">Unknown error</string>
+    <string name="sign_out">Sign Out</string>
+    <string name="alert_sign_out_message">Are you sure you want to Sign Out from your Google Account?</string>
+    <string name="empty_diary">Empty Diary</string>
+    <string name="write_something">Write something</string>
+    <string name="failed_to_connect_with_your_google_account">Failed to connect with your google account</string>
+</resources>
