@@ -19,6 +19,7 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Shapes
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -31,6 +32,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -41,6 +44,7 @@ import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.jefisu.diary.features_diary.domain.Diary
 import com.jefisu.diary.features_diary.domain.Mood
+import com.jefisu.diary.ui.theme.Elevation
 import io.realm.kotlin.ext.realmListOf
 import java.text.SimpleDateFormat
 import java.util.Locale
@@ -53,49 +57,66 @@ fun DiaryHolder(
     onClick: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val density = LocalDensity.current
+    var cardHeight by remember { mutableStateOf(0.dp) }
     val mood by remember { mutableStateOf(Mood.valueOf(diary.mood)) }
     var galleryOpened by remember { mutableStateOf(false) }
     var galleryLoading by remember { mutableStateOf(false) }
 
-    Card(
-        onClick = { onClick(diary._id.toString()) },
-        shape = Shapes().medium,
+    Row(
         modifier = modifier
     ) {
-        DiaryHeader(
-            mood = mood,
-            timestamp = diary.timestamp,
+        Spacer(modifier = Modifier.width(14.dp))
+        Surface(
             modifier = Modifier
-                .fillMaxWidth()
-                .background(mood.containerColor)
-                .padding(vertical = 7.dp, horizontal = 14.dp)
-        )
-        Column(
-            modifier = Modifier.padding(vertical = 8.dp, horizontal = 12.dp)
-        ) {
-            Text(
-                text = diary.description,
-                fontSize = MaterialTheme.typography.bodyLarge.fontSize,
-                maxLines = 4,
-                overflow = TextOverflow.Ellipsis,
-                textAlign = TextAlign.Justify,
-            )
-            if (diary.images.isNotEmpty()) {
-                TextButton(
-                    onClick = { galleryOpened = !galleryOpened },
-                    contentPadding = PaddingValues(horizontal = 4.dp, vertical = 2.dp),
-                    modifier = Modifier.height(35.dp)
-                ) {
-                    Text(
-                        text = if (galleryOpened) {
-                            if (galleryLoading) "Loading..." else "Hide Gallery"
-                        } else "Show Gallery",
-                        fontSize = MaterialTheme.typography.bodySmall.fontSize
-                    )
-                }
+                .width(2.dp)
+                .height(cardHeight + 14.dp),
+            tonalElevation = Elevation.Level1,
+            color = MaterialTheme.colorScheme.onSurface.copy(0.2f)
+        ) {}
+        Spacer(modifier = Modifier.width(20.dp))
+        Card(
+            onClick = { onClick(diary._id.toString()) },
+            shape = Shapes().medium,
+            modifier = Modifier.onGloballyPositioned {
+                density.run { cardHeight = it.size.height.toDp() }
             }
-            AnimatedVisibility(visible = galleryOpened) {
-                Gallery(images = diary.images)
+        ) {
+            DiaryHeader(
+                mood = mood,
+                timestamp = diary.timestamp,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(mood.containerColor)
+                    .padding(vertical = 7.dp, horizontal = 14.dp)
+            )
+            Column(
+                modifier = Modifier.padding(vertical = 8.dp, horizontal = 12.dp)
+            ) {
+                Text(
+                    text = diary.description,
+                    fontSize = MaterialTheme.typography.bodyLarge.fontSize,
+                    maxLines = 4,
+                    overflow = TextOverflow.Ellipsis,
+                    textAlign = TextAlign.Justify,
+                )
+                if (diary.images.isNotEmpty()) {
+                    TextButton(
+                        onClick = { galleryOpened = !galleryOpened },
+                        contentPadding = PaddingValues(horizontal = 4.dp, vertical = 2.dp),
+                        modifier = Modifier.height(35.dp)
+                    ) {
+                        Text(
+                            text = if (galleryOpened) {
+                                if (galleryLoading) "Loading..." else "Hide Gallery"
+                            } else "Show Gallery",
+                            fontSize = MaterialTheme.typography.bodySmall.fontSize
+                        )
+                    }
+                }
+                AnimatedVisibility(visible = galleryOpened) {
+                    Gallery(images = diary.images)
+                }
             }
         }
     }

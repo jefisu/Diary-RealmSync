@@ -4,7 +4,7 @@ plugins {
     id("com.android.application")
     kotlin("android")
     id("kotlin-kapt")
-    id("io.realm.kotlin") version "1.4.0"
+    id("io.realm.kotlin") version "1.6.0"
     id("dagger.hilt.android.plugin")
     id("org.jlleitschuh.gradle.ktlint") version "11.1.0"
     id("com.google.devtools.ksp") version "1.7.20-1.0.8"
@@ -125,12 +125,8 @@ dependencies {
     implementation("androidx.core:core-splashscreen:1.0.0")
 
     // Mongo DB Realm
-    implementation("io.realm.kotlin:library-sync:1.4.0")
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.0-native-mt") {
-        version {
-            strictly("1.6.0-native-mt")
-        }
-    }
+    implementation("io.realm.kotlin:library-sync:1.6.0")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4")
 
     // Coil
     implementation("io.coil-kt:coil-compose:2.2.2")

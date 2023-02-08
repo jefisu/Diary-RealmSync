@@ -10,4 +10,6 @@
     <string name="empty_diary">Empty Diary</string>
     <string name="write_something">Write something</string>
     <string name="failed_to_connect_with_your_google_account">Failed to connect with your google account</string>
+    <string name="it_was_not_possible_to_load_the_data">It was not possible to load the data</string>
+    <string name="user_not_authenticated">User not authenticated</string>
 </resources>

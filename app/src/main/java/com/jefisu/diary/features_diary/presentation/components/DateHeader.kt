@@ -11,16 +11,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import java.sql.Timestamp
-import java.time.ZoneId
+import java.time.LocalDate
 
 @Composable
-fun DateHeader(timestamp: Long) {
-
-    val localDate = Timestamp(timestamp).toInstant()
-        .atZone(ZoneId.systemDefault())
-        .toLocalDate()
-
+fun DateHeader(localDate: LocalDate) {
     Row(
         verticalAlignment = Alignment.CenterVertically
     ) {
