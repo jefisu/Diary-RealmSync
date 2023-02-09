@@ -1,4 +1,4 @@
-package com.jefisu.diary.features_diary.presentation
+package com.jefisu.diary.features_diary.presentation.diary_screen
 
 import com.jefisu.diary.core.util.UiText
 import com.jefisu.diary.features_diary.domain.Diary

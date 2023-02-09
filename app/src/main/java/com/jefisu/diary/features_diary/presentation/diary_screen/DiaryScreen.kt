@@ -1,4 +1,4 @@
-package com.jefisu.diary.features_diary.presentation
+package com.jefisu.diary.features_diary.presentation.diary_screen
 
 import android.annotation.SuppressLint
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -45,11 +45,11 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.jefisu.diary.R
-import com.jefisu.diary.features_diary.presentation.components.DateHeader
-import com.jefisu.diary.features_diary.presentation.components.DiaryHolder
-import com.jefisu.diary.features_diary.presentation.components.DiaryTopBar
-import com.jefisu.diary.features_diary.presentation.components.DisplayAlertDialog
-import com.jefisu.diary.features_diary.presentation.components.NavigationDrawer
+import com.jefisu.diary.features_diary.presentation.diary_screen.components.DateHeader
+import com.jefisu.diary.features_diary.presentation.diary_screen.components.DiaryHolder
+import com.jefisu.diary.features_diary.presentation.diary_screen.components.DiaryTopBar
+import com.jefisu.diary.features_diary.presentation.diary_screen.components.DisplayAlertDialog
+import com.jefisu.diary.features_diary.presentation.diary_screen.components.NavigationDrawer
 import com.ramcosta.composedestinations.annotation.Destination
 import kotlinx.coroutines.launch
 

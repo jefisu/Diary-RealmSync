@@ -14,7 +14,7 @@ import androidx.core.view.WindowCompat
 import com.jefisu.diary.destinations.AuthScreenDestination
 import com.jefisu.diary.destinations.DiaryScreenDestination
 import com.jefisu.diary.destinations.DirectionDestination
-import com.jefisu.diary.features_diary.presentation.DiaryScreen
+import com.jefisu.diary.features_diary.presentation.diary_screen.DiaryScreen
 import com.jefisu.diary.ui.theme.DiaryTheme
 import com.ramcosta.composedestinations.DestinationsNavHost
 import com.ramcosta.composedestinations.manualcomposablecalls.composable

@@ -1,4 +1,4 @@
-package com.jefisu.diary.features_diary.presentation.components
+package com.jefisu.diary.features_diary.presentation.diary_screen.components
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
