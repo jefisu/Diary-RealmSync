@@ -1,16 +1,29 @@
 package com.jefisu.diary.features_diary.presentation.screens.add_edit_screen
 
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.*
+import androidx.compose.material3.Button
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Shapes
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -43,22 +56,22 @@ fun AddEditScreen(
     val mood by viewModel.mood.collectAsState()
     val images by viewModel.images.collectAsState()
 
+    val pageNumber by remember {
+        derivedStateOf {
+            pagerState.currentPage
+        }
+    }
+
     // Update the Mood when selecting an existing Diary
     LaunchedEffect(key1 = mood) {
         val moodIndex = Mood.valueOf(mood.name).ordinal
         pagerState.scrollToPage(moodIndex)
     }
 
-    // Update the Mood text when change current Mood icon
-    LaunchedEffect(key1 = pagerState.currentPage) {
-        val moodSelected = Mood.values()[pagerState.currentPage]
-        viewModel.onEvent(AddEditEvent.SelectMood(moodSelected))
-    }
-
     Scaffold(
         topBar = {
             AddEditTopBar(
-                mood = mood,
+                moodName = { Mood.values()[pageNumber].name },
                 timestamp = System.currentTimeMillis(),
                 diaryExist = id != null,
                 onBackClick = navigator::navigateUp,

@@ -14,7 +14,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.jefisu.diary.R
-import com.jefisu.diary.features_diary.domain.Mood
 import com.jefisu.diary.features_diary.presentation.components.DisplayAlertDialog
 import java.text.SimpleDateFormat
 import java.util.*
@@ -23,7 +22,7 @@ import java.util.*
 @Composable
 fun AddEditTopBar(
     diaryExist: Boolean,
-    mood: Mood,
+    moodName: () -> String,
     timestamp: Long,
     onBackClick: () -> Unit,
     onDeleteConfirmedClick: () -> Unit
@@ -42,7 +41,7 @@ fun AddEditTopBar(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Text(
-                    text = mood.name,
+                    text = moodName(),
                     fontSize = MaterialTheme.typography.titleLarge.fontSize,
                     fontWeight = FontWeight.Bold
                 )
