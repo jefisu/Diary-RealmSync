@@ -2,6 +2,7 @@ package com.jefisu.diary.features_diary.presentation
 
 import android.annotation.SuppressLint
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -9,6 +10,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.calculateEndPadding
 import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
@@ -23,6 +25,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -34,6 +37,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.LayoutDirection
@@ -62,6 +66,7 @@ fun DiaryScreen(
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     var signOutDialogOpened by remember { mutableStateOf(false) }
     val state by viewModel.state.collectAsState()
+    val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
 
     LaunchedEffect(key1 = state.diaries) {
         if (state.diaries.isNotEmpty()) {
@@ -83,10 +88,14 @@ fun DiaryScreen(
         onSignOutClick = { signOutDialogOpened = true }
     ) {
         Scaffold(
+            modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
             topBar = {
-                DiaryTopBar(onMenuClick = {
-                    scope.launch { drawerState.open() }
-                })
+                DiaryTopBar(
+                    scrollBehavior = scrollBehavior,
+                    onMenuClick = {
+                        scope.launch { drawerState.open() }
+                    }
+                )
             },
             floatingActionButton = {
                 FloatingActionButton(onClick = { }) {
@@ -139,7 +148,12 @@ fun DiaryScreen(
             ) {
                 state.diaries.forEach { (localDate, diaries) ->
                     stickyHeader {
-                        DateHeader(localDate = localDate)
+                        DateHeader(
+                            localDate = localDate,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .background(MaterialTheme.colorScheme.surface)
+                        )
                         Spacer(modifier = Modifier.height(16.dp))
                     }
                     items(

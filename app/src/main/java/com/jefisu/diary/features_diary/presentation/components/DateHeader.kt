@@ -14,9 +14,10 @@ import androidx.compose.ui.unit.dp
 import java.time.LocalDate
 
 @Composable
-fun DateHeader(localDate: LocalDate) {
+fun DateHeader(localDate: LocalDate, modifier: Modifier = Modifier) {
     Row(
-        verticalAlignment = Alignment.CenterVertically
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = modifier
     ) {
         Column(
             horizontalAlignment = Alignment.End

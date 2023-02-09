@@ -9,6 +9,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
 import com.jefisu.diary.R
@@ -16,9 +17,11 @@ import com.jefisu.diary.R
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DiaryTopBar(
+    scrollBehavior: TopAppBarScrollBehavior,
     onMenuClick: () -> Unit,
 ) {
     TopAppBar(
+        scrollBehavior = scrollBehavior,
         title = {
             Text(text = stringResource(R.string.app_name))
         },
