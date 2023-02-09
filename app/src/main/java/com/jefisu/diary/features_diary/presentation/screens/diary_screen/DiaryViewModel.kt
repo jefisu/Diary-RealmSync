@@ -1,10 +1,10 @@
-package com.jefisu.diary.features_diary.presentation.diary_screen
+package com.jefisu.diary.features_diary.presentation.screens.diary_screen
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.jefisu.diary.core.util.Resource
 import com.jefisu.diary.core.util.UiText
-import com.jefisu.diary.core.util.toLocalDate
+import com.jefisu.diary.core.util.toLocalDateTime
 import com.jefisu.diary.features_diary.domain.Diary
 import com.jefisu.diary.features_diary.domain.DiaryRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -32,7 +32,7 @@ class DiaryViewModel @Inject constructor(
             error = error,
             isLoading = isLoading,
             diaries = diaries.groupBy {
-                it.timestamp.toLocalDate()
+                it.timestamp.toLocalDateTime()
             }
         )
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(), DiaryState())

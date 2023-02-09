@@ -1,4 +1,4 @@
-package com.jefisu.diary.features_diary.presentation.diary_screen
+package com.jefisu.diary.features_diary.presentation.screens.diary_screen
 
 import android.annotation.SuppressLint
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -45,12 +45,14 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.jefisu.diary.R
-import com.jefisu.diary.features_diary.presentation.diary_screen.components.DateHeader
-import com.jefisu.diary.features_diary.presentation.diary_screen.components.DiaryHolder
-import com.jefisu.diary.features_diary.presentation.diary_screen.components.DiaryTopBar
-import com.jefisu.diary.features_diary.presentation.diary_screen.components.DisplayAlertDialog
-import com.jefisu.diary.features_diary.presentation.diary_screen.components.NavigationDrawer
+import com.jefisu.diary.destinations.AddEditScreenDestination
+import com.jefisu.diary.features_diary.presentation.components.DisplayAlertDialog
+import com.jefisu.diary.features_diary.presentation.screens.diary_screen.components.DateHeader
+import com.jefisu.diary.features_diary.presentation.screens.diary_screen.components.DiaryHolder
+import com.jefisu.diary.features_diary.presentation.screens.diary_screen.components.DiaryTopBar
+import com.jefisu.diary.features_diary.presentation.screens.diary_screen.components.NavigationDrawer
 import com.ramcosta.composedestinations.annotation.Destination
+import com.ramcosta.composedestinations.navigation.navigate
 import kotlinx.coroutines.launch
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
@@ -98,7 +100,9 @@ fun DiaryScreen(
                 )
             },
             floatingActionButton = {
-                FloatingActionButton(onClick = { }) {
+                FloatingActionButton(onClick = {
+                    navController.navigate(AddEditScreenDestination(null))
+                }) {
                     Icon(
                         imageVector = Icons.Default.Edit,
                         contentDescription = "New diary icon"
@@ -146,10 +150,10 @@ fun DiaryScreen(
                         end = paddingValues.calculateEndPadding(LayoutDirection.Rtl)
                     )
             ) {
-                state.diaries.forEach { (localDate, diaries) ->
+                state.diaries.forEach { (localDateTime, diaries) ->
                     stickyHeader {
                         DateHeader(
-                            localDate = localDate,
+                            localDateTime = localDateTime,
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .background(MaterialTheme.colorScheme.surface)
@@ -162,7 +166,11 @@ fun DiaryScreen(
                     ) { diary ->
                         DiaryHolder(
                             diary = diary,
-                            onClick = { }
+                            onClick = {
+                                navController.navigate(
+                                    AddEditScreenDestination(diary._id.toString())
+                                )
+                            }
                         )
                     }
                 }

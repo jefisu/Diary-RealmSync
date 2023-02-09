@@ -1,4 +1,4 @@
-package com.jefisu.diary.features_diary.presentation.diary_screen.components
+package com.jefisu.diary.features_diary.presentation.screens.diary_screen.components
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -11,10 +11,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import java.time.LocalDate
+import java.time.LocalDateTime
 
 @Composable
-fun DateHeader(localDate: LocalDate, modifier: Modifier = Modifier) {
+fun DateHeader(localDateTime: LocalDateTime, modifier: Modifier = Modifier) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
         modifier = modifier
@@ -23,12 +23,12 @@ fun DateHeader(localDate: LocalDate, modifier: Modifier = Modifier) {
             horizontalAlignment = Alignment.End
         ) {
             Text(
-                text = String.format("%02d", localDate.dayOfMonth),
+                text = String.format("%02d", localDateTime.dayOfMonth),
                 fontSize = MaterialTheme.typography.titleLarge.fontSize,
                 fontWeight = FontWeight.Light
             )
             Text(
-                text = localDate.dayOfWeek.toString().take(3),
+                text = localDateTime.dayOfWeek.toString().take(3),
                 fontSize = MaterialTheme.typography.bodySmall.fontSize,
                 fontWeight = FontWeight.Light
             )
@@ -36,14 +36,14 @@ fun DateHeader(localDate: LocalDate, modifier: Modifier = Modifier) {
         Spacer(modifier = Modifier.width(14.dp))
         Column {
             Text(
-                text = localDate.month.toString()
+                text = localDateTime.month.toString()
                     .lowercase()
                     .replaceFirstChar { it.titlecase() },
                 fontSize = MaterialTheme.typography.titleLarge.fontSize,
                 fontWeight = FontWeight.Light
             )
             Text(
-                text = "${localDate.year}",
+                text = "${localDateTime.year}",
                 color = MaterialTheme.colorScheme.onSurface.copy(0.38f),
                 fontSize = MaterialTheme.typography.bodySmall.fontSize,
                 fontWeight = FontWeight.Light

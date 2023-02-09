@@ -12,4 +12,9 @@
     <string name="failed_to_connect_with_your_google_account">Failed to connect with your google account</string>
     <string name="it_was_not_possible_to_load_the_data">It was not possible to load the data</string>
     <string name="user_not_authenticated">User not authenticated</string>
+    <string name="delete">Delete</string>
+    <string name="are_you_sure_you_want_to_permanently_delete_this_note_s">Are you sure you want to permanently delete this diary note?</string>
+    <string name="save">Save</string>
+    <string name="tell_me_about_it">Tell me about it</string>
+    <string name="title">Title</string>
 </resources>

@@ -1,4 +1,4 @@
-package com.jefisu.diary.features_diary.presentation.diary_screen.components
+package com.jefisu.diary.features_diary.presentation.screens.diary_screen.components
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.Image

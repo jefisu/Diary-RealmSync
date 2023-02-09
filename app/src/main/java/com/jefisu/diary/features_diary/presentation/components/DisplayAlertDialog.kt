@@ -1,4 +1,4 @@
-package com.jefisu.diary.features_diary.presentation.diary_screen.components
+package com.jefisu.diary.features_diary.presentation.components
 
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button

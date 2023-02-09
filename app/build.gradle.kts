@@ -4,6 +4,7 @@ plugins {
     id("com.android.application")
     kotlin("android")
     id("kotlin-kapt")
+    id("kotlin-parcelize")
     id("io.realm.kotlin") version "1.6.0"
     id("dagger.hilt.android.plugin")
     id("org.jlleitschuh.gradle.ktlint") version "11.1.0"
