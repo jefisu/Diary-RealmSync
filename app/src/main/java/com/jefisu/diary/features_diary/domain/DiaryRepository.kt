@@ -8,4 +8,5 @@ typealias Diaries = Resource<List<Diary>>
 interface DiaryRepository {
     fun setUpRealm()
     fun getAllDiaries(): Flow<Diaries>
+    fun getDiaryById(id: String): Resource<Diary>
 }

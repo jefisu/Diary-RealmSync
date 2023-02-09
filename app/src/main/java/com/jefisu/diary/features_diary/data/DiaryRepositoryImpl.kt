@@ -13,6 +13,7 @@ import io.realm.kotlin.mongodb.App
 import io.realm.kotlin.mongodb.subscriptions
 import io.realm.kotlin.mongodb.sync.SyncConfiguration
 import io.realm.kotlin.query.Sort
+import io.realm.kotlin.types.ObjectId
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
@@ -50,13 +51,8 @@ class DiaryRepositoryImpl(
     }
 
     override fun getAllDiaries(): Flow<Diaries> {
-        if (user == null) {
-            return flowOf(
-                Resource.Error(UiText.StringResource(R.string.user_not_authenticated))
-            )
-        }
         return try {
-            realm.query<Diary>("ownerId == $0", user.id)
+            realm.query<Diary>("ownerId == $0", user!!.id)
                 .sort(property = "timestamp", sortOrder = Sort.DESCENDING)
                 .asFlow()
                 .map { result ->
@@ -65,6 +61,22 @@ class DiaryRepositoryImpl(
         } catch (e: Exception) {
             flowOf(
                 Resource.Error(UiText.StringResource(R.string.it_was_not_possible_to_load_the_data))
+            )
+        }
+    }
+
+    override fun getDiaryById(id: String): Resource<Diary> {
+        return try {
+            val response = realm
+                .query<Diary>("_id == $0", ObjectId.from(id))
+                .find()
+                .firstOrNull() ?: return Resource.Error(
+                UiText.DynamicString("Record not found")
+            )
+            Resource.Success(response)
+        } catch (_: Exception) {
+            Resource.Error(
+                UiText.StringResource(R.string.it_was_not_possible_to_load_the_data)
             )
         }
     }

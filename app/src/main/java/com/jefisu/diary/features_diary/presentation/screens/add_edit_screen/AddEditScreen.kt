@@ -1,23 +1,12 @@
 package com.jefisu.diary.features_diary.presentation.screens.add_edit_screen
 
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Button
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Shapes
-import androidx.compose.material3.Text
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -48,20 +37,29 @@ fun AddEditScreen(
 ) {
     val scrollState = rememberScrollState()
     val pagerState = rememberPagerState()
-    val state by viewModel.state.collectAsState()
 
+    val title by viewModel.title.collectAsState()
+    val description by viewModel.description.collectAsState()
+    val mood by viewModel.mood.collectAsState()
+    val images by viewModel.images.collectAsState()
+
+    // Update the Mood when selecting an existing Diary
+    LaunchedEffect(key1 = mood) {
+        val moodIndex = Mood.valueOf(mood.name).ordinal
+        pagerState.scrollToPage(moodIndex)
+    }
+
+    // Update the Mood text when change current Mood icon
     LaunchedEffect(key1 = pagerState.currentPage) {
         val moodSelected = Mood.values()[pagerState.currentPage]
-        if (moodSelected != state.mood) {
-            viewModel.onEvent(AddEditEvent.SelectMood(moodSelected))
-        }
+        viewModel.onEvent(AddEditEvent.SelectMood(moodSelected))
     }
 
     Scaffold(
         topBar = {
             AddEditTopBar(
-                mood = state.mood,
-                timestamp = state.timestamp,
+                mood = mood,
+                timestamp = System.currentTimeMillis(),
                 diaryExist = id != null,
                 onBackClick = navigator::navigateUp,
                 onDeleteConfirmedClick = { }
@@ -97,7 +95,7 @@ fun AddEditScreen(
                 }
                 Spacer(modifier = Modifier.height(30.dp))
                 TransparentTextField(
-                    text = state.title,
+                    text = title,
                     onTextChange = { viewModel.onEvent(AddEditEvent.EnteredTitle(it)) },
                     hint = stringResource(R.string.title),
                     keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
@@ -106,7 +104,7 @@ fun AddEditScreen(
                     )
                 )
                 TransparentTextField(
-                    text = state.description,
+                    text = description,
                     onTextChange = { viewModel.onEvent(AddEditEvent.EnteredDescription(it)) },
                     hint = stringResource(R.string.tell_me_about_it),
                     keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),

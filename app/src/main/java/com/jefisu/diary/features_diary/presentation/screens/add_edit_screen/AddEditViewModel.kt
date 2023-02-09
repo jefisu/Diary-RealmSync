@@ -2,37 +2,39 @@ package com.jefisu.diary.features_diary.presentation.screens.add_edit_screen
 
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
+import com.jefisu.diary.core.util.Resource
+import com.jefisu.diary.features_diary.domain.Diary
+import com.jefisu.diary.features_diary.domain.DiaryRepository
 import com.jefisu.diary.features_diary.domain.Mood
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.stateIn
 import javax.inject.Inject
 
 @HiltViewModel
 class AddEditViewModel @Inject constructor(
-    private val savedStateHandle: SavedStateHandle
+    private val savedStateHandle: SavedStateHandle,
+    private val repository: DiaryRepository
 ) : ViewModel() {
 
-//    private val _navArg = savedStateHandle.navArgs<AddEditNavArgs>()
+    val title = savedStateHandle.getStateFlow("title", "")
+    val description = savedStateHandle.getStateFlow("description", "")
+    val mood = savedStateHandle.getStateFlow("mood", Mood.Neutral)
+    val images = savedStateHandle.getStateFlow("images", emptyList<String>())
 
-    private val _title = savedStateHandle.getStateFlow("title", "")
-    private val _description = savedStateHandle.getStateFlow("description", "")
-    private val _mood = savedStateHandle.getStateFlow("mood", Mood.Neutral)
-    private val _images = savedStateHandle.getStateFlow("images", emptyList<String>())
-
-    val state = combine(_title, _description, _mood, _images) { title, description, mood, images ->
-        AddEditState(
-            title = title,
-            description = description,
-            mood = mood,
-            images = images
-        )
-    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(), AddEditState())
+    var _diary: Diary? = null
+        private set
 
     init {
         savedStateHandle.get<String>("id")?.let {
+            when (val result = repository.getDiaryById(it)) {
+                is Resource.Success -> {
+                    _diary = result.data
+                    savedStateHandle["title"] = _diary?.title
+                    savedStateHandle["description"] = _diary?.description
+                    savedStateHandle["images"] = _diary?.images?.toList()
+                    savedStateHandle["mood"] = Mood.valueOf(_diary!!.mood)
+                }
+                is Resource.Error -> Unit
+            }
         }
     }
 
@@ -41,11 +43,9 @@ class AddEditViewModel @Inject constructor(
             is AddEditEvent.EnteredTitle -> {
                 savedStateHandle["title"] = event.value
             }
-
             is AddEditEvent.EnteredDescription -> {
                 savedStateHandle["description"] = event.value
             }
-
             is AddEditEvent.SelectMood -> {
                 savedStateHandle["mood"] = event.mood
             }
