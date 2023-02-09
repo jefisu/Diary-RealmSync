@@ -25,6 +25,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -54,12 +55,19 @@ import kotlinx.coroutines.launch
 @Composable
 fun DiaryScreen(
     navController: NavController,
+    onDataLoaded: () -> Unit,
     viewModel: DiaryViewModel = hiltViewModel()
 ) {
     val scope = rememberCoroutineScope()
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     var signOutDialogOpened by remember { mutableStateOf(false) }
     val state by viewModel.state.collectAsState()
+
+    LaunchedEffect(key1 = state.diaries) {
+        if (state.diaries.isNotEmpty()) {
+            onDataLoaded()
+        }
+    }
 
     DisplayAlertDialog(
         title = stringResource(R.string.sign_out),

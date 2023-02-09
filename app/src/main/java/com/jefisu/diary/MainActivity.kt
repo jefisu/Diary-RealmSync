@@ -14,8 +14,10 @@ import androidx.core.view.WindowCompat
 import com.jefisu.diary.destinations.AuthScreenDestination
 import com.jefisu.diary.destinations.DiaryScreenDestination
 import com.jefisu.diary.destinations.DirectionDestination
+import com.jefisu.diary.features_diary.presentation.DiaryScreen
 import com.jefisu.diary.ui.theme.DiaryTheme
 import com.ramcosta.composedestinations.DestinationsNavHost
+import com.ramcosta.composedestinations.manualcomposablecalls.composable
 import dagger.hilt.android.AndroidEntryPoint
 import io.realm.kotlin.mongodb.App
 import javax.inject.Inject
@@ -26,10 +28,13 @@ class MainActivity : ComponentActivity() {
 
     @Inject
     lateinit var appRealm: App
+    var keepSplashOpened = true
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        installSplashScreen()
+        installSplashScreen().setKeepOnScreenCondition {
+            keepSplashOpened
+        }
         WindowCompat.setDecorFitsSystemWindows(window, false)
         setContent {
             DiaryTheme(dynamicColor = false) {
@@ -39,7 +44,17 @@ class MainActivity : ComponentActivity() {
                         startRoute = getStartDestination(),
                         modifier = Modifier
                             .statusBarsPadding()
-                            .navigationBarsPadding()
+                            .navigationBarsPadding(),
+                        manualComposableCallsBuilder = {
+                            composable(DiaryScreenDestination) {
+                                DiaryScreen(
+                                    navController = this.navController,
+                                    onDataLoaded = {
+                                        keepSplashOpened = false
+                                    }
+                                )
+                            }
+                        }
                     )
                 }
             }
@@ -50,6 +65,9 @@ class MainActivity : ComponentActivity() {
         val user = appRealm.currentUser
         return if (user != null && user.loggedIn) {
             DiaryScreenDestination
-        } else AuthScreenDestination
+        } else {
+            keepSplashOpened = false
+            AuthScreenDestination
+        }
     }
 }
