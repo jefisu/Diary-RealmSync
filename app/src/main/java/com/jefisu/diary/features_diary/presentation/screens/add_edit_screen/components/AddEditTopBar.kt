@@ -14,19 +14,36 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.jefisu.diary.R
+import com.jefisu.diary.core.util.toLocalDateTime
+import com.jefisu.diary.features_diary.domain.Diary
 import com.jefisu.diary.features_diary.presentation.components.DisplayAlertDialog
-import java.text.SimpleDateFormat
+import java.time.LocalDate
+import java.time.LocalTime
+import java.time.format.DateTimeFormatter
 import java.util.*
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddEditTopBar(
-    diaryExist: Boolean,
+    diary: Diary?,
     moodName: () -> String,
     timestamp: Long,
     onBackClick: () -> Unit,
     onDeleteConfirmedClick: () -> Unit
 ) {
+    var currentDate by remember { mutableStateOf(LocalDate.now()) }
+    var currentTime by remember { mutableStateOf(LocalTime.now()) }
+
+    val formattedDate = remember {
+        DateTimeFormatter.ofPattern("dd MMM yyyy")
+            .format(currentDate)
+            .uppercase()
+    }
+    val formattedTime = remember(currentTime) {
+        DateTimeFormatter.ofPattern("hh:mm a")
+            .format(currentTime)
+    }
+
     CenterAlignedTopAppBar(
         navigationIcon = {
             IconButton(onClick = onBackClick) {
@@ -47,8 +64,11 @@ fun AddEditTopBar(
                 )
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(
-                    text = SimpleDateFormat("dd MMM yyyy, hh:mm a", Locale.getDefault())
-                        .format(timestamp),
+                    text = if (diary == null) "$formattedDate, $formattedTime" else {
+                        DateTimeFormatter.ofPattern("dd MMM yyyy, hh:mm a")
+                            .format(diary?.timestamp?.toLocalDateTime())
+                            .uppercase()
+                    },
                     fontSize = MaterialTheme.typography.bodySmall.fontSize
                 )
             }
@@ -61,7 +81,7 @@ fun AddEditTopBar(
                     tint = MaterialTheme.colorScheme.onSurface
                 )
             }
-            if (diaryExist) {
+            if (diary != null) {
                 DeleteDiaryAction(
                     onDeleteConfirmedClick = onDeleteConfirmedClick
                 )

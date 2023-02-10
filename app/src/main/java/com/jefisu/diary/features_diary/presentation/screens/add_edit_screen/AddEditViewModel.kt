@@ -19,19 +19,17 @@ class AddEditViewModel @Inject constructor(
     val description = savedStateHandle.getStateFlow("description", "")
     val mood = savedStateHandle.getStateFlow("mood", Mood.Neutral)
     val images = savedStateHandle.getStateFlow("images", emptyList<String>())
-
-    var _diary: Diary? = null
-        private set
+    val diary = savedStateHandle.getStateFlow<Diary?>("diary", null)
 
     init {
         savedStateHandle.get<String>("id")?.let {
             when (val result = repository.getDiaryById(it)) {
                 is Resource.Success -> {
-                    _diary = result.data
-                    savedStateHandle["title"] = _diary?.title
-                    savedStateHandle["description"] = _diary?.description
-                    savedStateHandle["images"] = _diary?.images?.toList()
-                    savedStateHandle["mood"] = Mood.valueOf(_diary!!.mood)
+                    savedStateHandle["diary"] = result.data
+                    savedStateHandle["title"] = diary.value?.title
+                    savedStateHandle["description"] = diary.value?.description
+                    savedStateHandle["images"] = diary.value?.images?.toList()
+                    savedStateHandle["mood"] = Mood.valueOf(diary.value!!.mood)
                 }
                 is Resource.Error -> Unit
             }

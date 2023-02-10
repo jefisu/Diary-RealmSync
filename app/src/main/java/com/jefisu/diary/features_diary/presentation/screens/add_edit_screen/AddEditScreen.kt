@@ -55,6 +55,7 @@ fun AddEditScreen(
     val description by viewModel.description.collectAsState()
     val mood by viewModel.mood.collectAsState()
     val images by viewModel.images.collectAsState()
+    val diary by viewModel.diary.collectAsState()
 
     val pageNumber by remember {
         derivedStateOf {
@@ -71,9 +72,9 @@ fun AddEditScreen(
     Scaffold(
         topBar = {
             AddEditTopBar(
+                diary = diary,
                 moodName = { Mood.values()[pageNumber].name },
                 timestamp = System.currentTimeMillis(),
-                diaryExist = id != null,
                 onBackClick = navigator::navigateUp,
                 onDeleteConfirmedClick = { }
             )
