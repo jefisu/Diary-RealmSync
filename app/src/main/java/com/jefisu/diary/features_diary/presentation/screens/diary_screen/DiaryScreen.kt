@@ -4,7 +4,6 @@ import android.annotation.SuppressLint
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.calculateEndPadding
@@ -17,7 +16,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
@@ -45,6 +43,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.jefisu.diary.R
+import com.jefisu.diary.core.util.toLocalDate
 import com.jefisu.diary.destinations.AddEditScreenDestination
 import com.jefisu.diary.features_diary.presentation.components.DisplayAlertDialog
 import com.jefisu.diary.features_diary.presentation.screens.diary_screen.components.DateHeader
@@ -67,11 +66,12 @@ fun DiaryScreen(
     val scope = rememberCoroutineScope()
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     var signOutDialogOpened by remember { mutableStateOf(false) }
-    val state by viewModel.state.collectAsState()
+    val diaries by viewModel.diaries.collectAsState()
+    val error by viewModel.error.collectAsState()
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
 
-    LaunchedEffect(key1 = state.diaries) {
-        if (state.diaries.isNotEmpty()) {
+    LaunchedEffect(key1 = diaries) {
+        if (diaries.isNotEmpty()) {
             onDataLoaded()
         }
     }
@@ -110,70 +110,57 @@ fun DiaryScreen(
                 }
             }
         ) { paddingValues ->
-            when {
-                state.isLoading -> {
-                    Box(
-                        modifier = Modifier.fillMaxSize(),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        CircularProgressIndicator()
-                    }
-                    return@Scaffold
-                }
-
-                state.error != null -> {
-                    EmptyContent(
-                        title = "Error",
-                        subtitle = state.error!!.asString()
-                    )
-                    return@Scaffold
-                }
-
-                state.diaries.isEmpty() -> {
-                    EmptyContent(
-                        title = stringResource(R.string.empty_diary),
-                        subtitle = stringResource(R.string.write_something),
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(24.dp)
-                    )
-                    return@Scaffold
-                }
+            if (error != null) {
+                EmptyContent(
+                    title = "Error",
+                    subtitle = error!!.asString()
+                )
+                return@Scaffold
+            } else if (diaries.isEmpty()) {
+                EmptyContent(
+                    title = stringResource(R.string.empty_diary),
+                    subtitle = stringResource(R.string.write_something),
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(24.dp)
+                )
+                return@Scaffold
             }
             LazyColumn(
                 modifier = Modifier
                     .padding(horizontal = 24.dp)
                     .padding(
                         top = paddingValues.calculateTopPadding(),
-                        bottom = paddingValues.calculateBottomPadding(),
                         start = paddingValues.calculateStartPadding(LayoutDirection.Ltr),
                         end = paddingValues.calculateEndPadding(LayoutDirection.Rtl)
                     )
             ) {
-                state.diaries.forEach { (localDateTime, diaries) ->
-                    stickyHeader {
-                        DateHeader(
-                            localDateTime = localDateTime,
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .background(MaterialTheme.colorScheme.surface)
-                        )
-                        Spacer(modifier = Modifier.height(16.dp))
+                diaries
+                    .groupBy { it.timestamp.toLocalDate() }
+                    .forEach { (localDate, diaries) ->
+                        stickyHeader {
+                            DateHeader(
+                                localDate = localDate,
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .background(MaterialTheme.colorScheme.surface)
+                            )
+                            Spacer(modifier = Modifier.height(16.dp))
+                        }
+                        items(
+                            items = diaries,
+                            key = { it._id.toString() }
+                        ) { diary ->
+                            DiaryHolder(
+                                diary = diary,
+                                onClick = {
+                                    navController.navigate(
+                                        AddEditScreenDestination(diary._id.toString())
+                                    )
+                                }
+                            )
+                        }
                     }
-                    items(
-                        items = diaries,
-                        key = { it._id.toString() }
-                    ) { diary ->
-                        DiaryHolder(
-                            diary = diary,
-                            onClick = {
-                                navController.navigate(
-                                    AddEditScreenDestination(diary._id.toString())
-                                )
-                            }
-                        )
-                    }
-                }
             }
         }
     }

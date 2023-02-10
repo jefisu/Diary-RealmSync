@@ -17,4 +17,6 @@
     <string name="save">Save</string>
     <string name="tell_me_about_it">Tell me about it</string>
     <string name="title">Title</string>
+    <string name="it_was_not_possible_to_insert_try_again_later">It was not possible to insert. Try again later.</string>
+    <string name="fields_can_t_be_empty">Fields can\'t be empty.</string>
 </resources>

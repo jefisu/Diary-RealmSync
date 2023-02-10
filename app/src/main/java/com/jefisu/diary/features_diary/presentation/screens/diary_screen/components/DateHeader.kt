@@ -11,10 +11,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import java.time.LocalDateTime
+import java.time.LocalDate
 
 @Composable
-fun DateHeader(localDateTime: LocalDateTime, modifier: Modifier = Modifier) {
+fun DateHeader(localDate: LocalDate, modifier: Modifier = Modifier) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
         modifier = modifier
@@ -23,12 +23,12 @@ fun DateHeader(localDateTime: LocalDateTime, modifier: Modifier = Modifier) {
             horizontalAlignment = Alignment.End
         ) {
             Text(
-                text = String.format("%02d", localDateTime.dayOfMonth),
+                text = String.format("%02d", localDate.dayOfMonth),
                 fontSize = MaterialTheme.typography.titleLarge.fontSize,
                 fontWeight = FontWeight.Light
             )
             Text(
-                text = localDateTime.dayOfWeek.toString().take(3),
+                text = localDate.dayOfWeek.toString().take(3),
                 fontSize = MaterialTheme.typography.bodySmall.fontSize,
                 fontWeight = FontWeight.Light
             )
@@ -36,14 +36,14 @@ fun DateHeader(localDateTime: LocalDateTime, modifier: Modifier = Modifier) {
         Spacer(modifier = Modifier.width(14.dp))
         Column {
             Text(
-                text = localDateTime.month.toString()
+                text = localDate.month.toString()
                     .lowercase()
                     .replaceFirstChar { it.titlecase() },
                 fontSize = MaterialTheme.typography.titleLarge.fontSize,
                 fontWeight = FontWeight.Light
             )
             Text(
-                text = "${localDateTime.year}",
+                text = "${localDate.year}",
                 color = MaterialTheme.colorScheme.onSurface.copy(0.38f),
                 fontSize = MaterialTheme.typography.bodySmall.fontSize,
                 fontWeight = FontWeight.Light

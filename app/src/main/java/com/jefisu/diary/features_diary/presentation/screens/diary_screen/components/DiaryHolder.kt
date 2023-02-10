@@ -42,12 +42,12 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
+import com.jefisu.diary.core.util.toLocalDateTime
 import com.jefisu.diary.features_diary.domain.Diary
 import com.jefisu.diary.features_diary.domain.Mood
 import com.jefisu.diary.ui.theme.Elevation
 import io.realm.kotlin.ext.realmListOf
-import java.text.SimpleDateFormat
-import java.util.Locale
+import java.time.format.DateTimeFormatter
 import kotlin.math.max
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -146,8 +146,9 @@ fun DiaryHeader(
             modifier = Modifier.weight(1f)
         )
         Text(
-            text = SimpleDateFormat("hh:mm a", Locale.getDefault())
-                .format(timestamp),
+            text = DateTimeFormatter
+                .ofPattern("hh:mm a")
+                .format(timestamp.toLocalDateTime()),
             color = mood.contentColor,
             fontSize = MaterialTheme.typography.bodyMedium.fontSize
         )

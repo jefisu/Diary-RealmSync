@@ -65,19 +65,35 @@ class DiaryRepositoryImpl(
         }
     }
 
-    override fun getDiaryById(id: String): Resource<Diary> {
+    override fun getDiaryById(id: String): Flow<Resource<Diary>> {
         return try {
-            val response = realm
+            realm
                 .query<Diary>("_id == $0", ObjectId.from(id))
-                .find()
-                .firstOrNull() ?: return Resource.Error(
-                UiText.DynamicString("Record not found")
-            )
-            Resource.Success(response)
+                .asFlow()
+                .map {
+                    Resource.Success(it.list.first())
+                }
         } catch (_: Exception) {
-            Resource.Error(
-                UiText.StringResource(R.string.it_was_not_possible_to_load_the_data)
+            flowOf(
+                Resource.Error(
+                    UiText.StringResource(R.string.it_was_not_possible_to_load_the_data)
+                )
             )
+        }
+    }
+
+    override suspend fun insertDiary(diary: Diary): Resource<Diary> {
+        return realm.write {
+            try {
+                val addedDiary = copyToRealm(
+                    diary.apply { ownerId = user!!.id }
+                )
+                Resource.Success(addedDiary)
+            } catch (_: Exception) {
+                Resource.Error(
+                    UiText.StringResource(R.string.it_was_not_possible_to_insert_try_again_later)
+                )
+            }
         }
     }
 }

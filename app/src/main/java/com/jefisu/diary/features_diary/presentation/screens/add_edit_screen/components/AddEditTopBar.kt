@@ -27,7 +27,6 @@ import java.util.*
 fun AddEditTopBar(
     diary: Diary?,
     moodName: () -> String,
-    timestamp: Long,
     onBackClick: () -> Unit,
     onDeleteConfirmedClick: () -> Unit
 ) {
@@ -65,8 +64,9 @@ fun AddEditTopBar(
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(
                     text = if (diary == null) "$formattedDate, $formattedTime" else {
-                        DateTimeFormatter.ofPattern("dd MMM yyyy, hh:mm a")
-                            .format(diary?.timestamp?.toLocalDateTime())
+                        DateTimeFormatter
+                            .ofPattern("dd MMM yyyy, hh:mm a")
+                            .format(diary.timestamp.toLocalDateTime())
                             .uppercase()
                     },
                     fontSize = MaterialTheme.typography.bodySmall.fontSize
