@@ -10,4 +10,5 @@ interface DiaryRepository {
     fun getAllDiaries(): Flow<Diaries>
     fun getDiaryById(id: String): Flow<Resource<Diary>>
     suspend fun insertDiary(diary: Diary): Resource<Diary>
+    suspend fun updateDiary(diary: Diary): Resource<Diary>
 }

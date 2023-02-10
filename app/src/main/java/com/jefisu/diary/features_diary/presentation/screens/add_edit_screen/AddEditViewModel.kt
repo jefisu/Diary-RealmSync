@@ -13,9 +13,12 @@ import com.jefisu.diary.features_diary.domain.Mood
 import dagger.hilt.android.lifecycle.HiltViewModel
 import io.realm.kotlin.ext.toRealmList
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.receiveAsFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -33,19 +36,19 @@ class AddEditViewModel @Inject constructor(
     private val _event = Channel<UiEvent>()
     val event = _event.receiveAsFlow()
 
-    var diary: Diary? = null
-        private set
+    private val _diary = MutableStateFlow<Diary?>(null)
+    val diary = _diary.asStateFlow()
 
     init {
         savedStateHandle.get<String>("id")?.let {
             repository.getDiaryById(it)
                 .onEach { result ->
                     if (result is Resource.Success) {
-                        diary = result.data
-                        savedStateHandle["title"] = diary?.title
-                        savedStateHandle["description"] = diary?.description
-                        savedStateHandle["images"] = diary?.images?.toList()
-                        savedStateHandle["mood"] = diary?.mood
+                        _diary.update { result.data }
+                        savedStateHandle["title"] = _diary.value?.title
+                        savedStateHandle["description"] = _diary.value?.description
+                        savedStateHandle["images"] = _diary.value?.images?.toList()
+                        savedStateHandle["mood"] = _diary.value?.mood
                     }
                 }.launchIn(viewModelScope)
         }
@@ -77,22 +80,38 @@ class AddEditViewModel @Inject constructor(
                 )
                 return@launch
             }
-            val diary = Diary().apply {
+            val newDiary = Diary().apply {
                 title = this@AddEditViewModel.title.value
                 description = this@AddEditViewModel.description.value
                 mood = this@AddEditViewModel.mood.value
                 images = this@AddEditViewModel.images.value.toRealmList()
             }
-            val result = repository.insertDiary(diary)
-            if (result is Resource.Success) {
-                this@AddEditViewModel.diary = result.data
-                _event.send(UiEvent.Navigate())
+            if (_diary.value == null) {
+                repository.insertDiary(newDiary).also { result ->
+                    if (result is Resource.Success) {
+                        _diary.update { result.data }
+                        _event.send(UiEvent.Navigate())
+                    } else {
+                        _event.send(
+                            UiEvent.ShowError(
+                                (result as Resource.Error).uiText
+                            )
+                        )
+                    }
+                }
             } else {
-                _event.send(
-                    UiEvent.ShowError(
-                        (result as Resource.Error).uiText
-                    )
-                )
+                repository.updateDiary(newDiary.apply { _id = _diary.value!!._id }).also { result ->
+                    if (result is Resource.Success) {
+                        _diary.update { result.data }
+                        _event.send(UiEvent.Navigate())
+                    } else {
+                        _event.send(
+                            UiEvent.ShowError(
+                                (result as Resource.Error).uiText
+                            )
+                        )
+                    }
+                }
             }
         }
     }

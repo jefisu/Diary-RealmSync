@@ -62,6 +62,7 @@ fun AddEditScreen(
     val description by viewModel.description.collectAsState()
     val mood by viewModel.mood.collectAsState()
     val images by viewModel.images.collectAsState()
+    val diary by viewModel.diary.collectAsState()
 
     val pageNumber by remember {
         derivedStateOf {
@@ -95,7 +96,7 @@ fun AddEditScreen(
         snackbarHost = { SnackbarHost(snackBarHostState) },
         topBar = {
             AddEditTopBar(
-                diary = viewModel.diary,
+                diary = diary,
                 moodName = { Mood.values()[pageNumber].name },
                 onBackClick = navigator::navigateUp,
                 onDeleteConfirmedClick = { }

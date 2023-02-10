@@ -96,4 +96,26 @@ class DiaryRepositoryImpl(
             }
         }
     }
+
+    override suspend fun updateDiary(diary: Diary): Resource<Diary> {
+        return realm.write {
+            try {
+                val queriedDiary = query<Diary>("_id == $0", diary._id).first().find()
+                if (queriedDiary != null) {
+                    queriedDiary.title = diary.title
+                    queriedDiary.description = diary.description
+                    queriedDiary.mood = diary.mood
+                    queriedDiary.images = diary.images
+                    queriedDiary.timestamp = diary.timestamp
+                    Resource.Success(queriedDiary)
+                } else {
+                    Resource.Error(UiText.DynamicString("Queried Diary not exist."))
+                }
+            } catch (_: Exception) {
+                Resource.Error(
+                    UiText.StringResource(R.string.it_was_not_possible_to_insert_try_again_later)
+                )
+            }
+        }
+    }
 }
