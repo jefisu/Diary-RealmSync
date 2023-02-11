@@ -43,9 +43,7 @@ import com.google.accompanist.pager.rememberPagerState
 import com.jefisu.diary.R
 import com.jefisu.diary.core.util.UiEvent
 import com.jefisu.diary.core.util.UiText
-import com.jefisu.diary.features_diary.domain.GalleryImage
 import com.jefisu.diary.features_diary.domain.Mood
-import com.jefisu.diary.features_diary.domain.rememberGalleryState
 import com.jefisu.diary.features_diary.presentation.screens.add_edit_screen.components.AddEditTopBar
 import com.jefisu.diary.features_diary.presentation.screens.add_edit_screen.components.GalleryUploader
 import com.jefisu.diary.features_diary.presentation.screens.add_edit_screen.components.TransparentTextField
@@ -67,10 +65,7 @@ fun AddEditScreen(
     val snackBarHostState = remember { SnackbarHostState() }
     val focusManager = LocalFocusManager.current
     val scope = rememberCoroutineScope()
-    val galleryState = rememberGalleryState()
-
     val state by viewModel.state.collectAsState()
-
     val pageNumber by remember {
         derivedStateOf {
             pagerState.currentPage
@@ -180,11 +175,13 @@ fun AddEditScreen(
             Column {
                 Spacer(modifier = Modifier.height(12.dp))
                 GalleryUploader(
-                    galleryState = galleryState,
+                    galleryState = viewModel.galleryState,
                     onClickToClearFocus = focusManager::clearFocus,
                     onImageSelect = {
-                        galleryState.addImage(
-                            GalleryImage(image = it)
+                        val type = context.contentResolver.getType(it)?.split("/")?.last()
+                        viewModel.addImage(
+                            image = it,
+                            imageType = type ?: "jpg"
                         )
                     },
                     onImageClicked = { }

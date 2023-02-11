@@ -1,14 +1,18 @@
 package com.jefisu.diary.features_diary.presentation.screens.add_edit_screen
 
+import android.net.Uri
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.google.firebase.auth.FirebaseAuth
 import com.jefisu.diary.R
 import com.jefisu.diary.core.util.Resource
 import com.jefisu.diary.core.util.UiEvent
 import com.jefisu.diary.core.util.UiText
 import com.jefisu.diary.features_diary.domain.Diary
 import com.jefisu.diary.features_diary.domain.DiaryRepository
+import com.jefisu.diary.features_diary.domain.GalleryImage
+import com.jefisu.diary.features_diary.domain.GalleryState
 import com.jefisu.diary.features_diary.domain.Mood
 import dagger.hilt.android.lifecycle.HiltViewModel
 import io.realm.kotlin.ext.toRealmList
@@ -35,6 +39,8 @@ class AddEditViewModel @Inject constructor(
 
     private val _event = Channel<UiEvent>()
     val event = _event.receiveAsFlow()
+
+    val galleryState = GalleryState()
 
     private var _diary: Diary? = null
 
@@ -131,5 +137,17 @@ class AddEditViewModel @Inject constructor(
                 )
             }
         }
+    }
+
+    fun addImage(image: Uri, imageType: String) {
+        val userIdFirebase = FirebaseAuth.getInstance().currentUser?.uid
+        val remoteImagePath =
+            "images/$userIdFirebase/${image.lastPathSegment}-${System.currentTimeMillis()}.$imageType"
+        galleryState.addImage(
+            GalleryImage(
+                image = image,
+                remoteImagePath = remoteImagePath
+            )
+        )
     }
 }
