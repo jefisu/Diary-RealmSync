@@ -8,7 +8,6 @@ import kotlinx.coroutines.flow.Flow
 typealias Diaries = Resource<List<Diary>>
 
 interface DiaryRepository {
-    fun setUpRealm()
     fun getAllDiaries(): Flow<Diaries>
     fun getDiaryById(id: String): Flow<Resource<Diary>>
     suspend fun insertDiary(diary: Diary): SimpleResource
