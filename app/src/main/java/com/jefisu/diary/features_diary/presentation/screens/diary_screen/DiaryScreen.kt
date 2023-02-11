@@ -45,6 +45,7 @@ import androidx.navigation.NavController
 import com.jefisu.diary.R
 import com.jefisu.diary.core.util.toLocalDate
 import com.jefisu.diary.destinations.AddEditScreenDestination
+import com.jefisu.diary.destinations.AuthScreenDestination
 import com.jefisu.diary.features_diary.presentation.components.DisplayAlertDialog
 import com.jefisu.diary.features_diary.presentation.screens.diary_screen.components.DateHeader
 import com.jefisu.diary.features_diary.presentation.screens.diary_screen.components.DiaryHolder
@@ -82,6 +83,8 @@ fun DiaryScreen(
         isOpened = signOutDialogOpened,
         onCloseDialog = { signOutDialogOpened = false },
         onConfirmClick = {
+            viewModel.signOut()
+            navController.navigate(AuthScreenDestination)
         }
     )
 

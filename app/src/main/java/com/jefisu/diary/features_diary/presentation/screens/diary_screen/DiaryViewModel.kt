@@ -8,17 +8,20 @@ import com.jefisu.diary.core.util.UiText
 import com.jefisu.diary.features_diary.domain.Diary
 import com.jefisu.diary.features_diary.domain.DiaryRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
+import io.realm.kotlin.mongodb.App
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class DiaryViewModel @Inject constructor(
     private val repository: DiaryRepository,
-    private val savedStateHandle: SavedStateHandle
+    private val savedStateHandle: SavedStateHandle,
+    private val app: App
 ) : ViewModel() {
 
     val diaries = savedStateHandle.getStateFlow("diaries", listOf<Diary>())
@@ -38,5 +41,11 @@ class DiaryViewModel @Inject constructor(
                     is Resource.Error -> _error.update { result.uiText }
                 }
             }.launchIn(viewModelScope)
+    }
+
+    fun signOut() {
+        viewModelScope.launch {
+            app.currentUser?.logOut()
+        }
     }
 }
