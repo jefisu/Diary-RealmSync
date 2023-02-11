@@ -95,7 +95,10 @@ fun AddEditScreen(
                 state = state,
                 isNewDiary = id == null,
                 onBackClick = navigator::navigateUp,
-                onDeleteConfirmedClick = { },
+                onDeleteConfirmedClick = {
+                    viewModel.deleteDiary()
+                    navigator.navigateUp()
+                },
                 onUpdateDateTime = { localDate, localTime ->
                     viewModel.onEvent(AddEditEvent.SelectDateTime(localDate, localTime))
                 },

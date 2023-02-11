@@ -11,6 +11,7 @@ import com.jefisu.diary.features_diary.domain.Diary
 import com.jefisu.diary.features_diary.domain.DiaryRepository
 import com.jefisu.diary.features_diary.domain.Mood
 import dagger.hilt.android.lifecycle.HiltViewModel
+import io.realm.kotlin.ext.toRealmList
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -103,7 +104,7 @@ class AddEditViewModel @Inject constructor(
                 title = state.value.title
                 description = state.value.description
                 mood = state.value.mood.name
-//                images = state.value.images.toRealmList()
+                images = state.value.images.toRealmList()
                 timestamp = state.value.timestamp
             }
 
@@ -113,17 +114,21 @@ class AddEditViewModel @Inject constructor(
                 repository.updateDiary(newDiary.apply { _id = _diary!!._id })
             }
 
-            when (result) {
-                is Resource.Success -> {
-                    _diary = result.data
-                    _event.send(UiEvent.Navigate())
-                }
+            _event.send(
+                if (result is Resource.Success) UiEvent.Navigate()
+                else UiEvent.ShowError((result as Resource.Error).uiText)
+            )
+        }
+    }
 
-                is Resource.Error -> {
-                    _event.send(
-                        UiEvent.ShowError(result.uiText)
-                    )
-                }
+    fun deleteDiary() {
+        viewModelScope.launch {
+            if (_diary != null) {
+                val result = repository.deleteDiary(_diary?._id!!)
+                _event.send(
+                    if (result is Resource.Success) UiEvent.Navigate()
+                    else UiEvent.ShowError((result as Resource.Error).uiText)
+                )
             }
         }
     }

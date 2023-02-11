@@ -2,6 +2,7 @@ package com.jefisu.diary.features_diary.data
 
 import com.jefisu.diary.R
 import com.jefisu.diary.core.util.Resource
+import com.jefisu.diary.core.util.SimpleResource
 import com.jefisu.diary.core.util.UiText
 import com.jefisu.diary.features_diary.domain.Diaries
 import com.jefisu.diary.features_diary.domain.Diary
@@ -82,13 +83,13 @@ class DiaryRepositoryImpl(
         }
     }
 
-    override suspend fun insertDiary(diary: Diary): Resource<Diary> {
+    override suspend fun insertDiary(diary: Diary): SimpleResource {
         return realm.write {
             try {
-                val addedDiary = copyToRealm(
+                copyToRealm(
                     diary.apply { ownerId = user!!.id }
                 )
-                Resource.Success(addedDiary)
+                Resource.Success(Unit)
             } catch (_: Exception) {
                 Resource.Error(
                     UiText.StringResource(R.string.it_was_not_possible_to_insert_try_again_later)
@@ -97,23 +98,45 @@ class DiaryRepositoryImpl(
         }
     }
 
-    override suspend fun updateDiary(diary: Diary): Resource<Diary> {
+    override suspend fun updateDiary(diary: Diary): SimpleResource {
         return realm.write {
+            val queriedDiary = query<Diary>("_id == $0", diary._id).first().find()
+                ?: return@write Resource.Error(UiText.DynamicString("Queried Diary not exist."))
             try {
-                val queriedDiary = query<Diary>("_id == $0", diary._id).first().find()
-                if (queriedDiary != null) {
-                    queriedDiary.title = diary.title
-                    queriedDiary.description = diary.description
-                    queriedDiary.mood = diary.mood
-                    queriedDiary.images = diary.images
-                    queriedDiary.timestamp = diary.timestamp
-                    Resource.Success(queriedDiary)
-                } else {
-                    Resource.Error(UiText.DynamicString("Queried Diary not exist."))
+                queriedDiary.apply {
+                    title = diary.title
+                    description = diary.description
+                    mood = diary.mood
+                    images = diary.images
+                    timestamp = diary.timestamp
                 }
+                Resource.Success(Unit)
             } catch (_: Exception) {
                 Resource.Error(
-                    UiText.StringResource(R.string.it_was_not_possible_to_insert_try_again_later)
+                    UiText.StringResource(
+                        R.string.it_was_not_possible_to_insert_try_again_later,
+                        "insert"
+                    )
+                )
+            }
+        }
+    }
+
+    override suspend fun deleteDiary(id: ObjectId): SimpleResource {
+        return realm.write {
+            val diary =
+                query<Diary>("_id == $0 AND ownerId == $1", id, user!!.id)
+                    .find().firstOrNull()
+                    ?: return@write Resource.Error(UiText.DynamicString("Queried Diary not exist."))
+            try {
+                this.delete(diary)
+                Resource.Success(Unit)
+            } catch (_: Exception) {
+                Resource.Error(
+                    UiText.StringResource(
+                        R.string.it_was_not_possible_to_insert_try_again_later,
+                        "delete"
+                    )
                 )
             }
         }

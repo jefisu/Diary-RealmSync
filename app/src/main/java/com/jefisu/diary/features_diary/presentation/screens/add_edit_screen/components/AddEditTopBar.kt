@@ -7,6 +7,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.DateRange
+import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -121,6 +122,14 @@ fun DeleteDiaryAction(
 ) {
     var expanded by remember { mutableStateOf(false) }
     var openDialog by remember { mutableStateOf(false) }
+
+    IconButton(onClick = { expanded = !expanded }) {
+        Icon(
+            imageVector = Icons.Default.MoreVert,
+            contentDescription = "Overflow Menu Icon",
+            tint = MaterialTheme.colorScheme.onSurface
+        )
+    }
     DropdownMenu(
         expanded = expanded,
         onDismissRequest = { expanded = false }
