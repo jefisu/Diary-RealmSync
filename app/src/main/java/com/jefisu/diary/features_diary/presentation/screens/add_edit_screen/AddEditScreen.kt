@@ -27,8 +27,11 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
@@ -45,6 +48,7 @@ import com.jefisu.diary.features_diary.presentation.screens.add_edit_screen.comp
 import com.jefisu.diary.features_diary.presentation.screens.add_edit_screen.components.TransparentTextField
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalPagerApi::class)
 @Destination
@@ -58,6 +62,8 @@ fun AddEditScreen(
     val scrollState = rememberScrollState()
     val pagerState = rememberPagerState()
     val snackBarHostState = remember { SnackbarHostState() }
+    val focusManager = LocalFocusManager.current
+    val scope = rememberCoroutineScope()
 
     val state by viewModel.state.collectAsState()
 
@@ -87,6 +93,10 @@ fun AddEditScreen(
                 }
             }
         }
+    }
+
+    LaunchedEffect(key1 = scrollState.maxValue) {
+        scrollState.scrollTo(scrollState.maxValue)
     }
 
     Scaffold(
@@ -143,7 +153,9 @@ fun AddEditScreen(
                     hint = stringResource(R.string.title),
                     keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
                     keyboardActions = KeyboardActions(
-                        onNext = {}
+                        onNext = {
+                            focusManager.moveFocus(FocusDirection.Down)
+                        }
                     )
                 )
                 TransparentTextField(
@@ -152,7 +164,12 @@ fun AddEditScreen(
                     hint = stringResource(R.string.tell_me_about_it),
                     keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
                     keyboardActions = KeyboardActions(
-                        onNext = {}
+                        onNext = {
+                            scope.launch {
+                                scrollState.animateScrollTo(Int.MAX_VALUE)
+                                focusManager.clearFocus()
+                            }
+                        }
                     )
                 )
             }
