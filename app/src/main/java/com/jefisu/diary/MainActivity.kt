@@ -11,6 +11,8 @@ import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.core.view.WindowCompat
+import com.google.firebase.ktx.Firebase
+import com.google.firebase.ktx.initialize
 import com.jefisu.diary.destinations.AuthScreenDestination
 import com.jefisu.diary.destinations.DiaryScreenDestination
 import com.jefisu.diary.destinations.DirectionDestination
@@ -36,6 +38,7 @@ class MainActivity : ComponentActivity() {
             keepSplashOpened
         }
         WindowCompat.setDecorFitsSystemWindows(window, false)
+        Firebase.initialize(applicationContext)
         setContent {
             DiaryTheme(dynamicColor = false) {
                 Surface(modifier = Modifier.fillMaxSize()) {

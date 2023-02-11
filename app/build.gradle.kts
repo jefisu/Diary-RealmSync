@@ -10,7 +10,7 @@ plugins {
     id("org.jlleitschuh.gradle.ktlint") version "11.1.0"
     id("com.google.devtools.ksp") version "1.7.20-1.0.8"
     id("com.google.android.libraries.mapsplatform.secrets-gradle-plugin")
-    //    id("com.google.gms.google-services") version "4.3.15"
+    id("com.google.gms.google-services")
 }
 
 kotlin {

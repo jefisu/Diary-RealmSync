@@ -181,7 +181,7 @@ fun AddEditScreen(
                 Spacer(modifier = Modifier.height(12.dp))
                 GalleryUploader(
                     galleryState = galleryState,
-                    onAddClicked = { /*TODO*/ },
+                    onClickToClearFocus = focusManager::clearFocus,
                     onImageSelect = {
                         galleryState.addImage(
                             GalleryImage(image = it)

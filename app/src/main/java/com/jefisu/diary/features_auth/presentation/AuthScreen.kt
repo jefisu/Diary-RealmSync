@@ -1,7 +1,14 @@
 package com.jefisu.diary.features_auth.presentation
 
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -19,6 +26,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.jefisu.diary.R
 import com.jefisu.diary.core.util.UiEvent
+import com.jefisu.diary.destinations.DiaryScreenDestination
 import com.jefisu.diary.features_auth.presentation.components.GoogleButton
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootNavGraph
@@ -27,7 +35,6 @@ import com.stevdzasan.messagebar.ContentWithMessageBar
 import com.stevdzasan.messagebar.rememberMessageBarState
 import com.stevdzasan.onetap.OneTapSignInWithGoogle
 import com.stevdzasan.onetap.rememberOneTapSignInState
-import kotlinx.coroutines.flow.collect
 
 @ExperimentalMaterial3Api
 @RootNavGraph(start = true)
@@ -48,7 +55,7 @@ fun AuthScreen(
                 is UiEvent.Navigate -> {
                     navController.apply {
                         backQueue.clear()
-                        navigate(event.direction!!)
+                        navigate(DiaryScreenDestination)
                     }
                 }
                 is UiEvent.ShowError -> {
@@ -63,9 +70,7 @@ fun AuthScreen(
     OneTapSignInWithGoogle(
         state = oneTapState,
         clientId = viewModel.clientId,
-        onTokenIdReceived = { tokenId ->
-            viewModel.signInWithMongoAtlas(tokenId = tokenId)
-        },
+        onTokenIdReceived = viewModel::signInFirebase,
         onDialogDismissed = { message ->
             messageBarState.addError(Exception(message))
         }

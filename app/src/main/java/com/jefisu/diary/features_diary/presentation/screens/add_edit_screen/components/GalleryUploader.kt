@@ -42,7 +42,7 @@ fun GalleryUploader(
     imageSize: Dp = 60.dp,
     imageShape: Shape = Shapes().medium,
     spaceBetween: Dp = 12.dp,
-    onAddClicked: () -> Unit,
+    onClickToClearFocus: () -> Unit,
     onImageSelect: (Uri) -> Unit,
     onImageClicked: (GalleryImage) -> Unit
 ) {
@@ -68,7 +68,7 @@ fun GalleryUploader(
                 modifier = Modifier.size(imageSize),
                 shape = imageShape,
                 onClick = {
-                    onAddClicked()
+                    onClickToClearFocus()
                     multiplePhotoPicker.launch(
                         PickVisualMediaRequest(
                             ActivityResultContracts.PickVisualMedia.ImageOnly
