@@ -1,12 +1,15 @@
 package com.jefisu.diary.features_diary.domain
 
+import android.os.Parcelable
 import io.realm.kotlin.ext.realmListOf
 import io.realm.kotlin.types.ObjectId
 import io.realm.kotlin.types.RealmList
 import io.realm.kotlin.types.RealmObject
 import io.realm.kotlin.types.annotations.PrimaryKey
+import kotlinx.parcelize.Parcelize
 
-open class Diary : RealmObject {
+@Parcelize
+open class Diary : RealmObject, Parcelable {
     @PrimaryKey
     var _id: ObjectId = ObjectId.create()
     var ownerId: String = ""

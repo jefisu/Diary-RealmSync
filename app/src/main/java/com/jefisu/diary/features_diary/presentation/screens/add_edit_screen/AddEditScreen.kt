@@ -43,8 +43,11 @@ import com.google.accompanist.pager.rememberPagerState
 import com.jefisu.diary.R
 import com.jefisu.diary.core.util.UiEvent
 import com.jefisu.diary.core.util.UiText
+import com.jefisu.diary.features_diary.domain.GalleryImage
 import com.jefisu.diary.features_diary.domain.Mood
+import com.jefisu.diary.features_diary.domain.rememberGalleryState
 import com.jefisu.diary.features_diary.presentation.screens.add_edit_screen.components.AddEditTopBar
+import com.jefisu.diary.features_diary.presentation.screens.add_edit_screen.components.GalleryUploader
 import com.jefisu.diary.features_diary.presentation.screens.add_edit_screen.components.TransparentTextField
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
@@ -64,6 +67,7 @@ fun AddEditScreen(
     val snackBarHostState = remember { SnackbarHostState() }
     val focusManager = LocalFocusManager.current
     val scope = rememberCoroutineScope()
+    val galleryState = rememberGalleryState()
 
     val state by viewModel.state.collectAsState()
 
@@ -174,6 +178,17 @@ fun AddEditScreen(
                 )
             }
             Column {
+                Spacer(modifier = Modifier.height(12.dp))
+                GalleryUploader(
+                    galleryState = galleryState,
+                    onAddClicked = { /*TODO*/ },
+                    onImageSelect = {
+                        galleryState.addImage(
+                            GalleryImage(image = it)
+                        )
+                    },
+                    onImageClicked = { }
+                )
                 Spacer(modifier = Modifier.height(12.dp))
                 Button(
                     onClick = viewModel::insertDiary,
