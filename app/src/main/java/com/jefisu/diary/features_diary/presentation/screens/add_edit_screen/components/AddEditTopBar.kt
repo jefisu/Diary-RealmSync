@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -15,8 +16,15 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.jefisu.diary.R
 import com.jefisu.diary.core.util.toLocalDateTime
-import com.jefisu.diary.features_diary.domain.Diary
+import com.jefisu.diary.core.util.toLocalTime
 import com.jefisu.diary.features_diary.presentation.components.DisplayAlertDialog
+import com.jefisu.diary.features_diary.presentation.screens.add_edit_screen.AddEditState
+import com.maxkeppeker.sheets.core.models.base.rememberSheetState
+import com.maxkeppeler.sheets.calendar.CalendarDialog
+import com.maxkeppeler.sheets.calendar.models.CalendarConfig
+import com.maxkeppeler.sheets.calendar.models.CalendarSelection
+import com.maxkeppeler.sheets.clock.ClockDialog
+import com.maxkeppeler.sheets.clock.models.ClockSelection
 import java.time.LocalDate
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
@@ -25,23 +33,40 @@ import java.util.*
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddEditTopBar(
-    diary: Diary?,
-    moodName: () -> String,
+    state: AddEditState,
+    isNewDiary: Boolean,
+    onUpdateDateTime: (LocalDate, LocalTime) -> Unit,
+    onClickLoseChangesDate: () -> Unit,
     onBackClick: () -> Unit,
     onDeleteConfirmedClick: () -> Unit
 ) {
     var currentDate by remember { mutableStateOf(LocalDate.now()) }
     var currentTime by remember { mutableStateOf(LocalTime.now()) }
+    val dateDialog = rememberSheetState()
+    val timeDialog = rememberSheetState()
+    var updatedDateTime by remember { mutableStateOf(false) }
 
-    val formattedDate = remember {
-        DateTimeFormatter.ofPattern("dd MMM yyyy")
-            .format(currentDate)
-            .uppercase()
-    }
-    val formattedTime = remember(currentTime) {
-        DateTimeFormatter.ofPattern("hh:mm a")
-            .format(currentTime)
-    }
+    CalendarDialog(
+        state = dateDialog,
+        selection = CalendarSelection.Date { localDate ->
+            updatedDateTime = true
+            currentDate = localDate
+            onUpdateDateTime(currentDate, state.timestamp.toLocalTime())
+            timeDialog.show()
+        },
+        config = CalendarConfig(
+            monthSelection = true,
+            yearSelection = true
+        )
+    )
+
+    ClockDialog(
+        state = timeDialog,
+        selection = ClockSelection.HoursMinutes { hours, minutes ->
+            currentTime = LocalTime.of(hours, minutes)
+            onUpdateDateTime(currentDate, currentTime)
+        }
+    )
 
     CenterAlignedTopAppBar(
         navigationIcon = {
@@ -57,31 +82,31 @@ fun AddEditTopBar(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Text(
-                    text = moodName(),
+                    text = state.mood.name,
                     fontSize = MaterialTheme.typography.titleLarge.fontSize,
                     fontWeight = FontWeight.Bold
                 )
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(
-                    text = if (diary == null) "$formattedDate, $formattedTime" else {
-                        DateTimeFormatter
-                            .ofPattern("dd MMM yyyy, hh:mm a")
-                            .format(diary.timestamp.toLocalDateTime())
-                            .uppercase()
-                    },
+                    text = DateTimeFormatter
+                        .ofPattern("dd MMM yyyy, hh:mm a")
+                        .format(state.timestamp.toLocalDateTime())
+                        .uppercase(),
                     fontSize = MaterialTheme.typography.bodySmall.fontSize
                 )
             }
         },
         actions = {
-            IconButton(onClick = {}) {
+            IconButton(onClick = {
+                if (updatedDateTime) onClickLoseChangesDate() else dateDialog.show()
+            }) {
                 Icon(
-                    imageVector = Icons.Default.DateRange,
-                    contentDescription = "Date icon",
+                    imageVector = if (updatedDateTime) Icons.Default.Close else Icons.Default.DateRange,
+                    contentDescription = "Select or Clear date",
                     tint = MaterialTheme.colorScheme.onSurface
                 )
             }
-            if (diary != null) {
+            if (!isNewDiary) {
                 DeleteDiaryAction(
                     onDeleteConfirmedClick = onDeleteConfirmedClick
                 )

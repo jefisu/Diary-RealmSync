@@ -58,11 +58,7 @@ fun AddEditScreen(
     val pagerState = rememberPagerState()
     val snackBarHostState = remember { SnackbarHostState() }
 
-    val title by viewModel.title.collectAsState()
-    val description by viewModel.description.collectAsState()
-    val mood by viewModel.mood.collectAsState()
-    val images by viewModel.images.collectAsState()
-    val diary by viewModel.diary.collectAsState()
+    val state by viewModel.state.collectAsState()
 
     val pageNumber by remember {
         derivedStateOf {
@@ -71,8 +67,8 @@ fun AddEditScreen(
     }
 
     // Update the Mood when selecting an existing Diary
-    LaunchedEffect(key1 = Unit) {
-        val moodIndex = Mood.valueOf(mood).ordinal
+    LaunchedEffect(key1 = state.mood) {
+        val moodIndex = Mood.valueOf(state.mood.name).ordinal
         pagerState.scrollToPage(moodIndex)
     }
     LaunchedEffect(key1 = pageNumber) {
@@ -96,10 +92,16 @@ fun AddEditScreen(
         snackbarHost = { SnackbarHost(snackBarHostState) },
         topBar = {
             AddEditTopBar(
-                diary = diary,
-                moodName = { Mood.values()[pageNumber].name },
+                state = state,
+                isNewDiary = id == null,
                 onBackClick = navigator::navigateUp,
-                onDeleteConfirmedClick = { }
+                onDeleteConfirmedClick = { },
+                onUpdateDateTime = { localDate, localTime ->
+                    viewModel.onEvent(AddEditEvent.SelectDateTime(localDate, localTime))
+                },
+                onClickLoseChangesDate = {
+                    viewModel.onEvent(AddEditEvent.RestoreDateTimeInitial)
+                }
             )
         }
     ) { paddingValues ->
@@ -131,7 +133,7 @@ fun AddEditScreen(
                 }
                 Spacer(modifier = Modifier.height(30.dp))
                 TransparentTextField(
-                    text = title,
+                    text = state.title,
                     onTextChange = { viewModel.onEvent(AddEditEvent.EnteredTitle(it)) },
                     hint = stringResource(R.string.title),
                     keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
@@ -140,7 +142,7 @@ fun AddEditScreen(
                     )
                 )
                 TransparentTextField(
-                    text = description,
+                    text = state.description,
                     onTextChange = { viewModel.onEvent(AddEditEvent.EnteredDescription(it)) },
                     hint = stringResource(R.string.tell_me_about_it),
                     keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),

@@ -71,7 +71,7 @@ class DiaryRepositoryImpl(
                 .query<Diary>("_id == $0", ObjectId.from(id))
                 .asFlow()
                 .map {
-                    Resource.Success(it.list.first())
+                    Resource.Success(it.list.firstOrNull())
                 }
         } catch (_: Exception) {
             flowOf(
