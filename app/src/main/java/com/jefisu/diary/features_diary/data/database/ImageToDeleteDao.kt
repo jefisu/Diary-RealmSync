@@ -17,5 +17,4 @@ interface ImageToDeleteDao {
 
     @Query("DELETE FROM ImageToDelete WHERE id=:imageId")
     suspend fun cleanupImage(imageId: Int)
-
 }
