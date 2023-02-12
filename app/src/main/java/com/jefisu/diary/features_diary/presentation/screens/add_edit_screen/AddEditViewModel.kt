@@ -5,11 +5,14 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.ktx.auth
+import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.FirebaseStorage
 import com.jefisu.diary.R
 import com.jefisu.diary.core.util.Resource
 import com.jefisu.diary.core.util.UiEvent
 import com.jefisu.diary.core.util.UiText
+import com.jefisu.diary.core.util.fetchImagesFromFirebase
 import com.jefisu.diary.features_diary.domain.Diary
 import com.jefisu.diary.features_diary.domain.DiaryRepository
 import com.jefisu.diary.features_diary.domain.GalleryImage
@@ -55,11 +58,23 @@ class AddEditViewModel @Inject constructor(
                             state.copy(
                                 title = result.data.title,
                                 description = result.data.description,
-                                images = result.data.images.toList(),
                                 mood = Mood.valueOf(result.data.mood),
                                 timestamp = result.data.timestamp
                             )
                         }
+                        fetchImagesFromFirebase(
+                            remoteImagePaths = result.data.images,
+                            onResultDownload = { downloadedImageResult ->
+                                if (downloadedImageResult is Resource.Success) {
+                                    galleryState.addImage(
+                                        GalleryImage(
+                                            image = downloadedImageResult.data!!,
+                                            remoteImagePath = extractImagePath(downloadedImageResult.toString())
+                                        )
+                                    )
+                                }
+                            }
+                        )
                     }
                 }.launchIn(viewModelScope)
         }
@@ -160,5 +175,11 @@ class AddEditViewModel @Inject constructor(
             val imagePath = storage.child(galleryImage.remoteImagePath)
             imagePath.putFile(galleryImage.image)
         }
+    }
+
+    private fun extractImagePath(fullImageUrl: String): String {
+        val chunks = fullImageUrl.split("%2F")
+        val imageName = chunks[2].split("?").first()
+        return "images/${Firebase.auth.currentUser?.uid}/$imageName"
     }
 }

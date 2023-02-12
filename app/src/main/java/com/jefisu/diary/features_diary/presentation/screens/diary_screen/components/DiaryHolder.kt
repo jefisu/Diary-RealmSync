@@ -1,5 +1,7 @@
 package com.jefisu.diary.features_diary.presentation.screens.diary_screen.components
 
+import android.net.Uri
+import android.widget.Toast
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -23,8 +25,10 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -32,7 +36,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -42,6 +48,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
+import com.jefisu.diary.core.util.Resource
+import com.jefisu.diary.core.util.fetchImagesFromFirebase
 import com.jefisu.diary.core.util.toLocalDateTime
 import com.jefisu.diary.features_diary.domain.Diary
 import com.jefisu.diary.features_diary.domain.Mood
@@ -57,11 +65,39 @@ fun DiaryHolder(
     onClick: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val context = LocalContext.current
     val density = LocalDensity.current
     var cardHeight by remember { mutableStateOf(0.dp) }
     val mood by remember { mutableStateOf(Mood.valueOf(diary.mood)) }
     var galleryOpened by remember { mutableStateOf(false) }
     var galleryLoading by remember { mutableStateOf(false) }
+    var downloadedImages = remember { mutableStateListOf<Uri>() }
+
+    LaunchedEffect(key1 = galleryOpened) {
+        if (galleryOpened && downloadedImages.isEmpty()) {
+            galleryLoading = true
+            fetchImagesFromFirebase(
+                remoteImagePaths = diary.images,
+                onResultDownload = { result ->
+                    if (result is Resource.Success) {
+                        downloadedImages.add(result.data!!)
+                    } else {
+                        Toast.makeText(
+                            context,
+                            (result as Resource.Error).uiText.asString(context),
+                            Toast.LENGTH_SHORT
+                        ).show()
+                        galleryLoading = false
+                        galleryOpened = false
+                    }
+                },
+                onReadyToDisplay = {
+                    galleryLoading = false
+                    galleryOpened = true
+                }
+            )
+        }
+    }
 
     Row(
         modifier = modifier
@@ -115,7 +151,7 @@ fun DiaryHolder(
                     }
                 }
                 AnimatedVisibility(visible = galleryOpened) {
-                    Gallery(images = diary.images)
+                    Gallery(images = downloadedImages)
                 }
             }
         }
@@ -157,14 +193,14 @@ fun DiaryHeader(
 
 @Composable
 fun Gallery(
-    images: List<String>,
+    images: List<Uri>,
     modifier: Modifier = Modifier,
     imageSize: Dp = 40.dp,
     spaceBetween: Dp = 10.dp,
     imageShape: Shape = Shapes().small
 ) {
     BoxWithConstraints(modifier = modifier) {
-        val numberOfVisibileImages by remember {
+        val numberOfVisibleImages by remember {
             derivedStateOf {
                 max(
                     a = 0,
@@ -172,25 +208,26 @@ fun Gallery(
                 )
             }
         }
-        val remaingImages by remember {
+        val remainingImages by remember {
             derivedStateOf {
-                images.size - numberOfVisibileImages
+                images.size - numberOfVisibleImages
             }
         }
         Row {
             images
-                .take(numberOfVisibileImages)
+                .take(numberOfVisibleImages)
                 .forEach { image ->
                     AsyncImage(
                         model = image,
                         contentDescription = "Gallery image",
+                        contentScale = ContentScale.Crop,
                         modifier = Modifier
                             .size(imageSize)
                             .clip(imageShape)
                     )
                     Spacer(modifier = Modifier.width(spaceBetween))
                 }
-            if (remaingImages > 0) {
+            if (remainingImages > 0) {
                 Box(
                     contentAlignment = Alignment.Center,
                     modifier = Modifier
@@ -199,7 +236,7 @@ fun Gallery(
                         .background(MaterialTheme.colorScheme.primaryContainer)
                 ) {
                     Text(
-                        text = "+$remaingImages",
+                        text = "+$remainingImages",
                         fontSize = MaterialTheme.typography.bodyLarge.fontSize,
                         fontWeight = FontWeight.Medium,
                         color = MaterialTheme.colorScheme.onPrimaryContainer
