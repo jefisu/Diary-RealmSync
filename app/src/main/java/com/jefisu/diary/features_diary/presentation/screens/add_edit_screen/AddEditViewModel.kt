@@ -13,7 +13,9 @@ import com.jefisu.diary.core.util.Resource
 import com.jefisu.diary.core.util.UiEvent
 import com.jefisu.diary.core.util.UiText
 import com.jefisu.diary.core.util.fetchImagesFromFirebase
+import com.jefisu.diary.features_diary.data.database.ImageToDeleteDao
 import com.jefisu.diary.features_diary.data.database.ImageToUploadDao
+import com.jefisu.diary.features_diary.data.database.entity.ImageToDelete
 import com.jefisu.diary.features_diary.data.database.entity.ImageToUploadEntity
 import com.jefisu.diary.features_diary.domain.Diary
 import com.jefisu.diary.features_diary.domain.DiaryRepository
@@ -38,7 +40,8 @@ import javax.inject.Inject
 class AddEditViewModel @Inject constructor(
     private val savedStateHandle: SavedStateHandle,
     private val repository: DiaryRepository,
-    private val imageToUploadDao: ImageToUploadDao
+    private val imageToUploadDao: ImageToUploadDao,
+    private val imageToDeleteDao: ImageToDeleteDao
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(AddEditState())
@@ -153,8 +156,10 @@ class AddEditViewModel @Inject constructor(
             if (_diary != null) {
                 val result = repository.deleteDiary(_diary?._id!!)
                 _event.send(
-                    if (result is Resource.Success) UiEvent.Navigate()
-                    else UiEvent.ShowError((result as Resource.Error).uiText)
+                    if (result is Resource.Success) {
+                        deleteImagesFromFirebase(_diary!!.images.toList())
+                        UiEvent.Navigate()
+                    } else UiEvent.ShowError((result as Resource.Error).uiText)
                 )
             }
         }
@@ -191,6 +196,33 @@ class AddEditViewModel @Inject constructor(
                         }
                     }
                 }
+        }
+    }
+
+    private fun deleteImagesFromFirebase(images: List<String>) {
+        val storage = FirebaseStorage.getInstance().reference
+        if (images.isNotEmpty()) {
+            images.forEach { remotePath ->
+                storage.child(remotePath).delete()
+                    .addOnFailureListener {
+                        viewModelScope.launch {
+                            imageToDeleteDao.addImageToDelete(
+                                ImageToDelete(remoteImagePath = remotePath)
+                            )
+                        }
+                    }
+            }
+        } else {
+            galleryState.imagesToBeDeleted.map { it.remoteImagePath }.forEach { remotePath ->
+                storage.child(remotePath).delete()
+                    .addOnFailureListener {
+                        viewModelScope.launch {
+                            imageToDeleteDao.addImageToDelete(
+                                ImageToDelete(remoteImagePath = remotePath)
+                            )
+                        }
+                    }
+            }
         }
     }
 
