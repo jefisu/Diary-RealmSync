@@ -1,6 +1,7 @@
 package com.jefisu.diary.features_diary.presentation.screens.diary_screen
 
 import android.annotation.SuppressLint
+import android.util.Log
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -21,6 +22,8 @@ import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberDrawerState
@@ -35,6 +38,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -65,13 +69,22 @@ fun DiaryScreen(
     val scope = rememberCoroutineScope()
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     var signOutDialogOpened by remember { mutableStateOf(false) }
+    var deleteAllDialogOpened by remember { mutableStateOf(false) }
     val diaries by viewModel.diaries.collectAsState()
-    val error by viewModel.error.collectAsState()
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
+    val snackBarHostState = SnackbarHostState()
+    val context = LocalContext.current
 
     LaunchedEffect(key1 = diaries) {
         if (diaries.isNotEmpty()) {
             onDataLoaded()
+        }
+    }
+
+    LaunchedEffect(key1 = Unit) {
+        viewModel.message.collect { message ->
+            Log.d("TAG", message.asString(context))
+            snackBarHostState.showSnackbar(message.asString(context))
         }
     }
 
@@ -86,12 +99,26 @@ fun DiaryScreen(
         }
     )
 
+    DisplayAlertDialog(
+        title = stringResource(R.string.delete_all_diaries),
+        message = stringResource(R.string.are_you_sure_you_want_to_permanently_delete_all_your_diaries),
+        isOpened = deleteAllDialogOpened,
+        onCloseDialog = { deleteAllDialogOpened = false },
+        onConfirmClick = {
+            viewModel.deleteAllDiaries()
+            deleteAllDialogOpened = false
+            scope.launch { drawerState.close() }
+        }
+    )
+
     NavigationDrawer(
         drawerState = drawerState,
-        onSignOutClick = { signOutDialogOpened = true }
+        onSignOutClick = { signOutDialogOpened = true },
+        onDeleteAllClick = { deleteAllDialogOpened = true }
     ) {
         Scaffold(
             modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
+            snackbarHost = { SnackbarHost(snackBarHostState) },
             topBar = {
                 DiaryTopBar(
                     scrollBehavior = scrollBehavior,
@@ -111,13 +138,7 @@ fun DiaryScreen(
                 }
             }
         ) { paddingValues ->
-            if (error != null) {
-                EmptyContent(
-                    title = "Error",
-                    subtitle = error!!.asString()
-                )
-                return@Scaffold
-            } else if (diaries.isEmpty()) {
+            if (diaries.isEmpty()) {
                 EmptyContent(
                     title = stringResource(R.string.empty_diary),
                     subtitle = stringResource(R.string.write_something),

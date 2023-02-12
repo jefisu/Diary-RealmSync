@@ -13,4 +13,5 @@ interface DiaryRepository {
     suspend fun insertDiary(diary: Diary): SimpleResource
     suspend fun updateDiary(diary: Diary): SimpleResource
     suspend fun deleteDiary(id: ObjectId): SimpleResource
+    suspend fun deleteAllDiaries(): SimpleResource
 }

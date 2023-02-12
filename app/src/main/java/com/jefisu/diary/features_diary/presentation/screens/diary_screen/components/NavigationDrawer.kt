@@ -9,6 +9,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.DrawerState
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -30,6 +32,7 @@ import com.jefisu.diary.R
 fun NavigationDrawer(
     drawerState: DrawerState,
     onSignOutClick: () -> Unit,
+    onDeleteAllClick: () -> Unit,
     content: @Composable () -> Unit
 ) {
     ModalNavigationDrawer(
@@ -48,6 +51,24 @@ fun NavigationDrawer(
                         modifier = Modifier.size(250.dp)
                     )
                 }
+                NavigationDrawerItem(
+                    label = {
+                        Row(modifier = Modifier.padding(horizontal = 12.dp)) {
+                            Icon(
+                                imageVector = Icons.Default.Delete,
+                                contentDescription = "Delete all diaries",
+                                tint = MaterialTheme.colorScheme.onSurface
+                            )
+                            Spacer(modifier = Modifier.width(12.dp))
+                            Text(
+                                text = stringResource(R.string.delete_all_diaries),
+                                color = MaterialTheme.colorScheme.onSurface
+                            )
+                        }
+                    },
+                    selected = false,
+                    onClick = onDeleteAllClick
+                )
                 NavigationDrawerItem(
                     label = {
                         Row(modifier = Modifier.padding(horizontal = 12.dp)) {

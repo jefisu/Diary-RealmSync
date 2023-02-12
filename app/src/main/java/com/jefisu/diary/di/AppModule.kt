@@ -2,6 +2,8 @@ package com.jefisu.diary.di
 
 import android.app.Application
 import androidx.room.Room
+import com.jefisu.diary.core.connectivity.ConnectivityObserver
+import com.jefisu.diary.core.connectivity.NetworkConnectivityObserver
 import com.jefisu.diary.core.util.getMetaData
 import com.jefisu.diary.features_diary.data.database.ImageDatabase
 import com.jefisu.diary.features_diary.data.database.ImageToDeleteDao
@@ -17,6 +19,12 @@ import javax.inject.Singleton
 @Module
 @InstallIn(SingletonComponent::class)
 object AppModule {
+
+    @Provides
+    @Singleton
+    fun provideConnectivityObserver(
+        app: Application
+    ): ConnectivityObserver = NetworkConnectivityObserver(app)
 
     @Provides
     @Singleton

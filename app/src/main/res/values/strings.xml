@@ -20,4 +20,6 @@
     <string name="it_was_not_possible_to_insert_try_again_later">It was not possible to %s. Try again later.</string>
     <string name="fields_can_t_be_empty">Fields can\'t be empty.</string>
     <string name="images_not_uploaded_yet_wait_a_little_bit_or_try_uploading_again">Images not uploaded yet. Wait a little bit, or try uploading again.</string>
+    <string name="delete_all_diaries">Delete All Diaries</string>
+    <string name="are_you_sure_you_want_to_permanently_delete_all_your_diaries">Are you sure you want to permanently delete all your diaries?</string>
 </resources>

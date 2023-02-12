@@ -113,4 +113,21 @@ class DiaryRepositoryImpl(
             }
         }
     }
+
+    override suspend fun deleteAllDiaries(): SimpleResource {
+        return realm.write {
+            try {
+                val diaries = query<Diary>("ownerId == $0", user!!.id).find()
+                delete(diaries)
+                Resource.Success(Unit)
+            } catch (_: Exception) {
+                Resource.Error(
+                    UiText.StringResource(
+                        R.string.it_was_not_possible_to_insert_try_again_later,
+                        "delete all diaries"
+                    )
+                )
+            }
+        }
+    }
 }
