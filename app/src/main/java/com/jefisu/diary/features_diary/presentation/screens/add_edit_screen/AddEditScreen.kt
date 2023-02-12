@@ -114,6 +114,7 @@ fun AddEditScreen(
                     selectedGalleryImage = selectedGalleryImage!!,
                     onCloseClicked = { selectedGalleryImage = null },
                     onDeleteClicked = {
+                        viewModel.galleryState.removeImage(selectedGalleryImage!!)
                         selectedGalleryImage = null
                     }
                 )

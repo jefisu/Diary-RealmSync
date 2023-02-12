@@ -139,6 +139,9 @@ class AddEditViewModel @Inject constructor(
             val result = if (_diary == null) {
                 repository.insertDiary(newDiary)
             } else {
+                deleteImagesFromFirebase(
+                    images = galleryState.imagesToBeDeleted.map { it.remoteImagePath }
+                )
                 repository.updateDiary(newDiary.apply { _id = _diary!!._id })
             }
 
@@ -199,7 +202,7 @@ class AddEditViewModel @Inject constructor(
         }
     }
 
-    private fun deleteImagesFromFirebase(images: List<String>) {
+    private fun deleteImagesFromFirebase(images: List<String> = emptyList()) {
         val storage = FirebaseStorage.getInstance().reference
         if (images.isNotEmpty()) {
             images.forEach { remotePath ->
