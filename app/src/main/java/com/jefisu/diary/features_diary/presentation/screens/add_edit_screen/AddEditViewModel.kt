@@ -5,6 +5,7 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.storage.FirebaseStorage
 import com.jefisu.diary.R
 import com.jefisu.diary.core.util.Resource
 import com.jefisu.diary.core.util.UiEvent
@@ -110,7 +111,7 @@ class AddEditViewModel @Inject constructor(
                 title = state.value.title
                 description = state.value.description
                 mood = state.value.mood.name
-                images = state.value.images.toRealmList()
+                images = galleryState.images.map { it.remoteImagePath }.toRealmList()
                 timestamp = state.value.timestamp
             }
 
@@ -121,8 +122,10 @@ class AddEditViewModel @Inject constructor(
             }
 
             _event.send(
-                if (result is Resource.Success) UiEvent.Navigate()
-                else UiEvent.ShowError((result as Resource.Error).uiText)
+                if (result is Resource.Success) {
+                    uploadImageToFirebase()
+                    UiEvent.Navigate()
+                } else UiEvent.ShowError((result as Resource.Error).uiText)
             )
         }
     }
@@ -149,5 +152,13 @@ class AddEditViewModel @Inject constructor(
                 remoteImagePath = remoteImagePath
             )
         )
+    }
+
+    private fun uploadImageToFirebase() {
+        val storage = FirebaseStorage.getInstance().reference
+        galleryState.images.forEach { galleryImage ->
+            val imagePath = storage.child(galleryImage.remoteImagePath)
+            imagePath.putFile(galleryImage.image)
+        }
     }
 }
