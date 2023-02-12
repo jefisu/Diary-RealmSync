@@ -13,6 +13,8 @@ import com.jefisu.diary.core.util.Resource
 import com.jefisu.diary.core.util.UiEvent
 import com.jefisu.diary.core.util.UiText
 import com.jefisu.diary.core.util.fetchImagesFromFirebase
+import com.jefisu.diary.features_diary.data.database.ImageToUploadDao
+import com.jefisu.diary.features_diary.data.database.entity.ImageToUploadEntity
 import com.jefisu.diary.features_diary.domain.Diary
 import com.jefisu.diary.features_diary.domain.DiaryRepository
 import com.jefisu.diary.features_diary.domain.GalleryImage
@@ -35,7 +37,8 @@ import javax.inject.Inject
 @HiltViewModel
 class AddEditViewModel @Inject constructor(
     private val savedStateHandle: SavedStateHandle,
-    private val repository: DiaryRepository
+    private val repository: DiaryRepository,
+    private val imageToUploadDao: ImageToUploadDao
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(AddEditState())
@@ -174,6 +177,20 @@ class AddEditViewModel @Inject constructor(
         galleryState.images.forEach { galleryImage ->
             val imagePath = storage.child(galleryImage.remoteImagePath)
             imagePath.putFile(galleryImage.image)
+                .addOnProgressListener {
+                    val sessionUri = it.uploadSessionUri
+                    if (sessionUri != null) {
+                        viewModelScope.launch {
+                            imageToUploadDao.addImageToUpload(
+                                ImageToUploadEntity(
+                                    remoteImagePath = galleryImage.remoteImagePath,
+                                    imageUri = galleryImage.image.toString(),
+                                    sessionUri = sessionUri.toString()
+                                )
+                            )
+                        }
+                    }
+                }
         }
     }
 

@@ -1,7 +1,9 @@
 package com.jefisu.diary.di
 
 import android.app.Application
+import androidx.room.Room
 import com.jefisu.diary.core.util.getMetaData
+import com.jefisu.diary.features_diary.data.database.ImageDatabase
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -29,4 +31,18 @@ object AppModule {
     fun provideAppRealm(
         @Named("APP_ID") appId: String
     ) = App.create(appId)
+
+    @Provides
+    @Singleton
+    fun provideImageDatabase(app: Application): ImageDatabase {
+        return Room.databaseBuilder(
+            app,
+            ImageDatabase::class.java,
+            "image_db"
+        ).build()
+    }
+
+    @Provides
+    @Singleton
+    fun provideFirstDao(db: ImageDatabase) = db.dao
 }

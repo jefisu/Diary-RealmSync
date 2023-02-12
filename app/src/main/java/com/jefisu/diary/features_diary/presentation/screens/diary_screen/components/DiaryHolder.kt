@@ -150,7 +150,7 @@ fun DiaryHolder(
                         )
                     }
                 }
-                AnimatedVisibility(visible = galleryOpened) {
+                AnimatedVisibility(visible = galleryOpened && !galleryLoading) {
                     Gallery(images = downloadedImages)
                 }
             }
