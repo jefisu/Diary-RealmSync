@@ -59,6 +59,9 @@ class DiaryViewModel @Inject constructor(
 
     init {
         getAllDiaries()
+        viewModelScope.launch {
+            connectivity.observe().collect { network = it }
+        }
     }
 
     private fun getAllDiaries() {
