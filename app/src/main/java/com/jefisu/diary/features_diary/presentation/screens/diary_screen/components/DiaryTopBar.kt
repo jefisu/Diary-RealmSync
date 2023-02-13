@@ -1,6 +1,7 @@
 package com.jefisu.diary.features_diary.presentation.screens.diary_screen.components
 
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -13,13 +14,33 @@ import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
 import com.jefisu.diary.R
+import com.maxkeppeker.sheets.core.models.base.rememberSheetState
+import com.maxkeppeler.sheets.calendar.CalendarDialog
+import com.maxkeppeler.sheets.calendar.models.CalendarConfig
+import com.maxkeppeler.sheets.calendar.models.CalendarSelection
+import java.time.LocalDate
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DiaryTopBar(
     scrollBehavior: TopAppBarScrollBehavior,
     onMenuClick: () -> Unit,
+    isDateSelected: Boolean,
+    onSelectDate: (LocalDate?) -> Unit
 ) {
+    val dateDialogState = rememberSheetState()
+
+    CalendarDialog(
+        state = dateDialogState,
+        selection = CalendarSelection.Date(
+            onSelectDate = onSelectDate
+        ),
+        config = CalendarConfig(
+            monthSelection = true,
+            yearSelection = true
+        )
+    )
+
     TopAppBar(
         scrollBehavior = scrollBehavior,
         title = {
@@ -35,10 +56,16 @@ fun DiaryTopBar(
             }
         },
         actions = {
-            IconButton(onClick = {}) {
+            IconButton(onClick = {
+                if (isDateSelected) {
+                    onSelectDate(null)
+                    return@IconButton
+                }
+                dateDialogState.show()
+            }) {
                 Icon(
-                    imageVector = Icons.Default.DateRange,
-                    contentDescription = "Date icon",
+                    imageVector = if (isDateSelected) Icons.Default.Close else Icons.Default.DateRange,
+                    contentDescription = "Clear date selected/Select date icon",
                     tint = MaterialTheme.colorScheme.onSurface
                 )
             }

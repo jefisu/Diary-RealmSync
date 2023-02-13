@@ -74,6 +74,7 @@ fun DiaryScreen(
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
     val snackBarHostState = SnackbarHostState()
     val context = LocalContext.current
+    val pickedDate by viewModel.pickedDateToFilter.collectAsState()
 
     LaunchedEffect(key1 = diaries) {
         if (diaries.isNotEmpty()) {
@@ -124,7 +125,9 @@ fun DiaryScreen(
                     scrollBehavior = scrollBehavior,
                     onMenuClick = {
                         scope.launch { drawerState.open() }
-                    }
+                    },
+                    isDateSelected = pickedDate != null,
+                    onSelectDate = viewModel::filterDiariesByDate
                 )
             },
             floatingActionButton = {
@@ -140,8 +143,14 @@ fun DiaryScreen(
         ) { paddingValues ->
             if (diaries.isEmpty()) {
                 EmptyContent(
-                    title = stringResource(R.string.empty_diary),
-                    subtitle = stringResource(R.string.write_something),
+                    title = stringResource(
+                        if (pickedDate != null) R.string.no_matching_diaries
+                        else R.string.empty_diary
+                    ),
+                    subtitle = stringResource(
+                        if (pickedDate != null) R.string.try_selecting_another_date
+                        else R.string.write_something
+                    ),
                     modifier = Modifier
                         .fillMaxSize()
                         .padding(24.dp)

@@ -11,6 +11,7 @@ import com.google.firebase.storage.FirebaseStorage
 import com.jefisu.diary.core.connectivity.ConnectivityObserver
 import com.jefisu.diary.core.util.Resource
 import com.jefisu.diary.core.util.UiText
+import com.jefisu.diary.core.util.toLocalDate
 import com.jefisu.diary.features_diary.data.database.ImageToDeleteDao
 import com.jefisu.diary.features_diary.data.database.entity.ImageToDelete
 import com.jefisu.diary.features_diary.domain.Diary
@@ -18,10 +19,17 @@ import com.jefisu.diary.features_diary.domain.DiaryRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import io.realm.kotlin.mongodb.App
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.receiveAsFlow
+import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import java.time.LocalDate
 import javax.inject.Inject
 
 @HiltViewModel
@@ -35,7 +43,16 @@ class DiaryViewModel @Inject constructor(
 
     private var network by mutableStateOf(ConnectivityObserver.Status.Unavailable)
 
-    val diaries = savedStateHandle.getStateFlow("diaries", listOf<Diary>())
+    private val _diaries = savedStateHandle.getStateFlow("diaries", listOf<Diary>())
+
+    private val _pickedDateToFilter = MutableStateFlow<LocalDate?>(null)
+    val pickedDateToFilter = _pickedDateToFilter.asStateFlow()
+
+    val diaries = _diaries.combine(_pickedDateToFilter) { diaries, pickedDate ->
+        pickedDate?.let { date ->
+            diaries.filter { it.timestamp.toLocalDate() == date }
+        } ?: diaries
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(1000L), emptyList())
 
     private val _message = Channel<UiText>()
     val message = _message.receiveAsFlow()
@@ -45,13 +62,16 @@ class DiaryViewModel @Inject constructor(
     }
 
     private fun getAllDiaries() {
-        repository.getAllDiaries()
-            .onEach { result ->
-                when (result) {
-                    is Resource.Success -> savedStateHandle["diaries"] = result.data?.toList()
-                    is Resource.Error -> _message.send(result.uiText)
-                }
-            }.launchIn(viewModelScope)
+        repository.getAllDiaries().onEach { result ->
+            when (result) {
+                is Resource.Success -> savedStateHandle["diaries"] = result.data?.toList()
+                is Resource.Error -> _message.send(result.uiText)
+            }
+        }.launchIn(viewModelScope)
+    }
+
+    fun filterDiariesByDate(localDate: LocalDate?) {
+        _pickedDateToFilter.update { localDate }
     }
 
     fun signOut() {
